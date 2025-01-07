@@ -552,10 +552,16 @@ proc tick {
               x:  100
             , y:  -100
         };
+        
+        add_slhd_clip_point Pt2D{
+              x: 0
+            , y: -150
+        };
         add_slhd_clip_point Pt2D{
               x: -100
             , y: -100
         };
+        
 
         set_pen_color "#0000FF";
         i = 2;
@@ -597,5 +603,5 @@ proc tick {
 
 onflag {
     Pt2D p1 = Pt2D{x:0, y:-180};
-    repeat 1 {tick;}
+    forever {tick;}
 }
