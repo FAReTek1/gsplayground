@@ -10,3 +10,4 @@ This is the repository where I develop and share my goboscript code. My scratch 
 
 - geo2d
     - a module for dealing with 2d geometry (line intersection, line/poly clipping, etc)
+    

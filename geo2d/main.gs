@@ -40,6 +40,36 @@ struct Circle {
     x, y, r
 }
 
+# - Structs for returning values -
+struct PtX2{
+    x1, y1, x2, y2
+}
+
+func get_ptx2(PtX2 pts, index) Pt2D {
+    if index == 1 {
+        return Pt2D{
+            x: $pts.x1,
+            y: $pts.y1
+        };
+    } else {
+        return Pt2D{
+            x: $pts.x2,
+            y: $pts.y2
+        };
+    }
+}
+
+proc draw_ptx2 PtX2 pts {
+    if $pts.x1 == ("" + $pts.x1) {
+        goto $pts.x1, $pts.y1;
+        pen_down; pen_up;
+    }
+    if $pts.x2 == ("" + $pts.x2){
+        goto $pts.x2, $pts.y2;
+        pen_down; pen_up;
+    }
+}
+
 # -- Pt2D ---
 
 func join_pt2Ds(Pt2D p1, Pt2D p2) Line2D {
@@ -104,6 +134,57 @@ proc fill_circle Circle c {
     set_pen_size 2 * $c.r;
     pen_down;
     pen_up;
+}
+
+func circle_at (Pt2D p, r) Circle {
+    return Circle{
+        x: $p.x, y:$p.y, r: $r
+    };
+}
+
+func intersect_circles(Circle c1, Circle c2) PtX2 {
+    # i1 & i2
+    local dx = $c2.x - $c1.x;
+    local dy = $c2.y - $c1.y;
+
+    # i3
+    local disquared = dx * dx + dy * dy;
+    local dist = sqrt(disquared);
+
+    if dist > $c1.r + $c2.r {
+        return PtX2{x1: "notouch", x2: "notouch"};
+    }
+
+    if dist < abs($c1.r - $c2.r) {
+        return PtX2{x1: "circinside", x2: "circinside"};
+    }
+    
+    # i1 & i2
+    local vx = dx / dist;
+    local vy = dy / dist;
+
+    # This is old code, idk what to call this :\ I think it's some kind of magnitude to multiply by unit vector
+    # i6
+    local m1 = ((($c1.r * $c1.r) - ($c2.r * $c2.r)) + disquared) / (2 * dist);
+
+    # i7 & i8
+    local mdx = $c1.x + m1 * vx;
+    local mdy = $c1.y + m1 * vy;
+
+    # i9
+    local m2 = sqrt(($c1.r * $c1.r) - (m1 * m1)); # Putting a lot of brackets because goboscript seems to have BIDMAS errors
+
+    # i10 & i11
+    local ox = m2 * vx;
+    local oy = m2 * vy;
+
+    return PtX2{
+        x1: mdx + oy,
+        y1: mdy - ox,
+        x2: mdx - oy,
+        y2: mdy + ox
+    };
+
 }
 
 # --- mx + c ---
@@ -517,9 +598,8 @@ proc clip_slhd {
 #     say plist[0].x; \
 #     say length plist; \
 #     __TRIFILL_PLIST__i = 1; \# local keyword doesn't seem to work here???
-#     repeat 10 {say "bruh";}
 
-    # repeat length plist - 1{\
+    # repeat length plist - 2{\
     #     fillTri plist[1].x, plist[1].y, 
     #     plist[__TRIFILL_PLIST__i].x, plist[__TRIFILL_PLIST__i].y, 
     #     plist[__TRIFILL_PLIST__i + 1].x, plist[__TRIFILL_PLIST__i + 1].y; \
@@ -533,72 +613,23 @@ proc tick {
 
         p1.x += 5 * (key_pressed("right arrow") - key_pressed("left arrow"));
         p1.y += 5 * (key_pressed("up arrow") - key_pressed("down arrow"));
-        
+
         Pt2D p2 = mouse_pt();
-        Pt2D p3 = Pt2D{x:240, y:0};
 
-        delete slhd_poly_points;
-
-        add_slhd_poly_point p1;
-        add_slhd_poly_point p2;
-        add_slhd_poly_point p3;
-
-        delete slhd_clip_poly;
-        add_slhd_clip_point Pt2D{
-              x: 100
-            , y: 100
-        };
-        add_slhd_clip_point Pt2D{
-              x:  100
-            , y:  -100
-        };
-        
-        add_slhd_clip_point Pt2D{
-              x: 0
-            , y: -150
-        };
-        add_slhd_clip_point Pt2D{
-              x: -100
-            , y: -100
-        };
-        
-
-        set_pen_color "#0000FF";
-        i = 2;
-        repeat length slhd_clip_poly - 2 {
-            fillTri slhd_clip_poly[1].x, 
-                    slhd_clip_poly[1].y, 
-                    slhd_clip_poly[i].x, 
-                    slhd_clip_poly[i].y, 
-                    slhd_clip_poly[i + 1].x, 
-                    slhd_clip_poly[i + 1].y;
-            i ++;
-        }
+        Circle c1 = circle_at(p1, 100);
+        Circle c2 = circle_at(p2, 75);
 
         set_pen_color "#FF0000";
-        i = 2;
-        repeat length slhd_poly_points - 2 {
-            fillTri slhd_poly_points[1].x, 
-                    slhd_poly_points[1].y, 
-                    slhd_poly_points[i].x, 
-                    slhd_poly_points[i].y, 
-                    slhd_poly_points[i + 1].x, 
-                    slhd_poly_points[i + 1].y;
-            i ++;
-        }
+        fill_circle(c1);
+        set_pen_color "#0000FF";
+        fill_circle(c2);
 
-        clip_slhd;
+        PtX2 inter = intersect_circles(c1, c2);
         set_pen_color "#00FF00";
-        i = 2;
-        repeat length slhd_new_poly - 2 {
-            fillTri slhd_new_poly[1].x, 
-                    slhd_new_poly[1].y, 
-                    slhd_new_poly[i].x, 
-                    slhd_new_poly[i].y, 
-                    slhd_new_poly[i + 1].x, 
-                    slhd_new_poly[i + 1].y;
-            i ++;
-        }
+        set_pen_size 5;
+        draw_ptx2 inter;
+
+
 }
 
 onflag {
