@@ -1,3 +1,4 @@
+# Module dealing with all your bezier stuffies
 costumes "blank.svg";
 
 %include std\\geo2d.gs
