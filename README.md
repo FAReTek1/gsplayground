@@ -1,5 +1,5 @@
 # gsplayground
-This is the repository where I develop and share my goboscript code. My scratch profile: https://scratch.mit.edu/users/faretek1/
+This is the repository where I develop and share my [goboscript](https://github.com/aspizu/goboscript) code. My scratch profile: https://scratch.mit.edu/users/faretek1/
 
 ## Goboscript modules
 - cmath

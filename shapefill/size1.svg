@@ -1,0 +1,13 @@
+<svg
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="480"
+    height="360"
+    viewBox="0,0,480,360">
+    <g transform="">
+        <g fill="#ff0004" stroke="none" stroke-width="0" stroke-miterlimit="10">
+            <path d="M0,360v-360h480v360z" />
+        </g>
+    </g>
+</svg> <!--rotationCenter:239.99999999999997:179.9999999999999-->
