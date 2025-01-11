@@ -12,6 +12,23 @@ struct pos {
     d  # direction
 }
 
+func my_pos() pos {
+    return pos{
+        x: x_position(),
+        y: y_position(),
+        s: size(),
+        d: direction()
+    };
+}
+func mouse_pos() pos {
+    return pos{
+        x: mouse_x(),
+        y: mouse_y(),
+        s: 100,
+        d: 90
+    };
+}
+
 func costume_count() {
     local old_costume = costume_number();
     switch_costume 0;
@@ -21,7 +38,7 @@ func costume_count() {
 }
 
 proc goto_pos pos pos {
-    position pos.x, pos.y, pos.s, pos.d;
+    position $pos.x, $pos.y, $pos.s, $pos.d;
 }
 
 proc size_hack size {
@@ -32,8 +49,6 @@ proc size_hack size {
 
     switch_costume old_costume;
 }
-
-
 
 proc pos_size_hack x, y, size {
     local old_costume = costume_number();

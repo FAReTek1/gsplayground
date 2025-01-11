@@ -1,7 +1,11 @@
 costumes "blank.svg";
 
-%include std\\numgs.gs
+%include std\\shapefill.gs
 
 onflag {
-    sieve_of_atkin 100000;
+    hide;
+    forever {
+        erase_all;
+        fill_arc mouse_pos(), (90 * timer())  % 360, 0.75;
+    }
 }

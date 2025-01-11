@@ -69,6 +69,14 @@ func smooth_max(x, y, s) { # s = smoothing factor
     return MAX($x, $y) + (($s/6) * c * c * c);
 }
 
+func tri_num(n) {
+    return ($n * $n + $n) / 2;
+}
+
+func choose(n, k) {
+    return gamma($n + 1) / (gamma($k + 1) * gamma($n - $k + 1));
+}
+
 # - polynomial solvers -
 struct Ret2 {a, b} # Simple struct for returning 2 values :\
 struct Ret3 {a, b, c}
@@ -189,9 +197,6 @@ proc sieve_of_atkin limit {
         }
         i++;
     }
-
-
-
 }
 
 # -- demo code --

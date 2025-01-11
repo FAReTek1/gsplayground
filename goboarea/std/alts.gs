@@ -2,6 +2,7 @@
 # This can be used when you have to work with recursive functions
 # This system is designed based on faretek1's vars list
 
+# note: this hasn't been tested yet
 list alts;
 proc alts_at i, opcode, value {
     if opcode == "=" {
