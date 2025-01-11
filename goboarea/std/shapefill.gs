@@ -235,16 +235,16 @@ proc fill_AW pos pos, hole {
 
 proc draw_AW pos pos, hole {
     if $hole < 0 {
-        _inner_AW_fill $pos, 0, cos($pos.d), sin($pos.d), 
+        _inner_AW_draw $pos, 0, cos($pos.d), sin($pos.d), 
                        0.16 * $pos.s, 0.9 * $pos.s, 0;
 
     } elif $hole < 1 {
-        _inner_AW_fill $pos, $pos.s * $hole, cos($pos.d), sin($pos.d), 
+        _inner_AW_draw $pos, $pos.s * $hole, cos($pos.d), sin($pos.d), 
                        0.16 * $pos.s, 0.9 * $pos.s, 0.9 * $pos.s * $hole;
     }
 }
 
-proc _inner_AW_fill pos pos, s2, cosd, sind, rx, ry1, ry2 {
+proc _inner_AW_draw pos pos, s2, cosd, sind, rx, ry1, ry2 {
     goto $pos.x + $ry1 * $sind + $rx * $cosd,
          $pos.y + $ry1 * $cosd - $rx * $sind;
 
