@@ -2,16 +2,18 @@
 # This includes:
 # - Pos/size hack
 %include std\\math.gs
+# %include std\\geo2d.gs
 
 costumes "std\\size0.svg", "std\\size1.svg", "std\\size2.svg";
 
 struct pos {
     # Struct storing a sprite position - x, y, size & dir
-    x, # x
-    y, # y
+    x, y, # pos
     s, # size
     d  # direction
 }
+
+struct WxH {w, h} # Width & height
 
 func my_pos() pos {
     return pos{
@@ -31,6 +33,7 @@ func mouse_pos() pos {
     };
 }
 
+# - Costume utils -
 
 func costume_count() {
     local old_costume = costume_number();
@@ -39,6 +42,62 @@ func costume_count() {
     switch_costume old_costume;
     return ret;
 }
+
+list WxH costume_dimensions;
+proc cache_costume_dimensions{
+    delete costume_dimensions;
+
+    local i = 1;
+    local ct = costume_count();
+    repeat ct { 
+        # You could actually do a repeat until costume # == 1 but
+        # you have to make sure it does the first iteration
+        switch_costume i;
+        local WxH dim = measure_costume_wxh();
+        add dim to costume_dimensions;        
+        i++;
+    }
+}
+
+func measure_costume_wxh() WxH {
+    return WxH{
+        w: measure_costume_width(),
+        h: measure_costume_height()
+    };
+}
+
+func measure_costume_width(){
+    return _measure_width(size(), 0, x_position(), y_position());
+}
+
+func measure_costume_height(){
+    turn_right 90;
+    local ret = _measure_width(size(), 0, x_position(), y_position());
+    turn_left 90;
+    return ret;
+}
+func _measure_width(s, rd, x, y) { # rd = recursion depth
+    size_hack($s);
+
+    goto "Infinity", 0;
+    local width = x_position() - 240;
+    goto "-Infinity", 0;
+    width += -210 - x_position();
+
+    if width > 40 {
+        pos_hack $x, $y;
+        return (width / size()) * 100;
+
+    } elif $rd > 2 {
+        pos_hack $x, $y;
+        return 0;
+    }
+
+    else {
+        return _measure_width(10 * $s, 1 + $rd, $x, $y);
+    }
+}
+
 
 # - Sound effect utils -
 nowarp proc get_sound_length sound, inaccuracy {

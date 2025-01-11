@@ -7,6 +7,36 @@
 %include std\\math.gs
 %include std\\spritecontrol.gs
 
+# - Basic scripts -
+proc draw_ptx2 PtX2 pts {
+    if $pts.x1 == ("" + $pts.x1) {
+        goto $pts.x1, $pts.y1;
+        pen_down; pen_up;
+    }
+    if $pts.x2 == ("" + $pts.x2){
+        goto $pts.x2, $pts.y2;
+        pen_down; pen_up;
+    }
+}
+
+proc fill_circle Circle c {
+    # literally paint a dot
+    goto $c.x, $c.y;
+    set_pen_size 2 * $c.r;
+    pen_down;
+    pen_up;
+}
+
+proc draw_box Box b {
+    goto $b.xmin, $b.ymin; pen_down;
+
+    goto $b.xmin, $b.ymax;
+    goto $b.xmax, $b.ymax;
+    goto $b.xmax, $b.ymin;
+
+    goto $b.xmin, $b.ymin; pen_up;
+}
+
 # -- Capped line by @faretek1 on scratch
 costumes "std\\shapefill pencap opaq.svg", "std\\shapefill pencap trans.svg";
 

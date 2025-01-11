@@ -3,7 +3,7 @@
 
 # %include std\\bitw.gs
 %include std\\math.gs
-%include std\\azex.gs
+# %include std\\azex.gs
 
 # -- Macros ---
 # These should probably be added to other things - e.g. math.gs
@@ -17,6 +17,24 @@
 
 struct Pt2D{
     x, y
+}
+
+struct Polar {
+    r, t # theta
+}
+
+func to_cart(Polar p) Pt2D {
+    return Pt2D{
+        x: $p.r * sin($p.t),
+        y: $p.r * cos($p.t)
+    };
+}
+
+func to_polar(Pt2D p) Polar {
+    return Polar{
+        r: sqrt($p.x * $p.x + $p.y * $p.y),
+        t: DIR($p.x, $p.y, 0, 0)
+    };
 }
 
 struct Line2D{
@@ -57,16 +75,6 @@ func get_ptx2(PtX2 pts, index) Pt2D {
     }
 }
 
-proc draw_ptx2 PtX2 pts {
-    if $pts.x1 == ("" + $pts.x1) {
-        goto $pts.x1, $pts.y1;
-        pen_down; pen_up;
-    }
-    if $pts.x2 == ("" + $pts.x2){
-        goto $pts.x2, $pts.y2;
-        pen_down; pen_up;
-    }
-}
 
 # -- Pt2D ---
 
@@ -84,8 +92,8 @@ func mouse_pt() Pt2D {
     };
 }
 
-proc goto_pt2d Pt2D pos {
-    goto $pos.x, $pos.y;
+proc goto_pt2d Pt2D p {
+    goto $p.x, $p.y;
 }
 
 # --- Line2D ---
@@ -126,13 +134,6 @@ func l2d_to_mxc(Line2D l) MxPlusC {
 }
 
 # --- Circle ---
-proc fill_circle Circle c {
-    # literally paint a dot
-    goto $c.x, $c.y;
-    set_pen_size 2 * $c.r;
-    pen_down;
-    pen_up;
-}
 
 func circle_at (Pt2D p, r) Circle {
     return Circle{
@@ -197,15 +198,6 @@ struct Box {
     xmin, ymin, xmax, ymax
 }
 
-proc draw_box Box b {
-    goto $b.xmin, $b.ymin; pen_down;
-
-    goto $b.xmin, $b.ymax;
-    goto $b.xmax, $b.ymax;
-    goto $b.xmax, $b.ymin;
-
-    goto $b.xmin, $b.ymin; pen_up;
-}
 
 func _compute_out_code(x, y, Box b) {
     return 

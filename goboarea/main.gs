@@ -1,15 +1,7 @@
 costumes "blank.svg";
 
-%include std\\shapefill.gs
+%include std\\spritecontrol.gs
 
 onflag {
-    forever{
-        erase_all;
-        draw_AW pos{
-            x: 0,
-            y: 0,
-            s: 150,
-            d: 0
-        }, mouse_y() / 150;
-    }
+    cache_costume_dimensions;
 }
