@@ -4,6 +4,12 @@ costumes "blank.svg";
 
 onflag {
     forever{
-        point_to_pos mouse_pos();
+        erase_all;
+        draw_AW pos{
+            x: 0,
+            y: 0,
+            s: 150,
+            d: 0
+        }, mouse_y() / 150;
     }
 }

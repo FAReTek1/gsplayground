@@ -161,6 +161,88 @@ proc fill_arc pos pos, ext, hole {
     }
 }
 
+# -- Arrow filler for intros adapted from https://scratch.mit.edu/projects/1046239626/ --
+# Costumes by @infinitto on scratch: https://scratch.mit.edu/projects/1046239626/
+# Uses a specific size that cannot be changed here. If you want dynamic width, make one using 2 quad fills
+costumes "std\\aw\\*.svg";
+
+proc fill_AW pos pos, hole {
+    # Note: this filler is a bit stuttery and doesn't work sometimes
+    if $hole < 0 {
+        fill_AW $pos, 0;
+
+    } elif $hole < 1 {
+        goto_pos $pos;
+        if $hole * $pos.s == 0 {
+            switch_costume "shapefill AW0";
+            stamp;
+        } else {
+            if $hole < 0.5 {
+                local i = floor(7 + ln($hole) / 0.69314718056);
+                switch_costume "shapefill AW" & i;
+                stamp;
+                if $hole == 0.25 { # Removes the small gap created at 0.25 hole
+                    size_hack $hole * $pos.s * 2.04;
+                } else {
+                    size_hack $hole * $pos.s * antiln(0.6931471805599453 * (6 - i));
+                }
+                stamp;
+            } else {
+                local i = ceil(5 + ln(2 - 2 * $hole) / -0.53479999674);
+                switch_costume "shapefill AW" & i;
+                stamp;
+                if $hole != 0.5{
+                    size_hack $pos.s + (
+                        antiln(0.6931471805599453 * (4 - i)) * 
+                        (2 * antiln(-0.5347999967394081 * (4.89 - i)) * ($pos.s * ($hole - 1)) + $pos.s)
+                    ) / 0.707106781187;
+                    stamp;
+                }
+            }
+        }
+    }
+}
+
+proc draw_AW pos pos, hole {
+    if $hole < 0 {
+        _inner_AW_fill $pos, 0, cos($pos.d), sin($pos.d), 
+                       0.16 * $pos.s, 0.9 * $pos.s, 0;
+
+    } elif $hole < 1 {
+        _inner_AW_fill $pos, $pos.s * $hole, cos($pos.d), sin($pos.d), 
+                       0.16 * $pos.s, 0.9 * $pos.s, 0.9 * $pos.s * $hole;
+    }
+}
+
+proc _inner_AW_fill pos pos, s2, cosd, sind, rx, ry1, ry2 {
+    goto $pos.x + $ry1 * $sind + $rx * $cosd,
+         $pos.y + $ry1 * $cosd - $rx * $sind;
+
+    pen_down;
+    goto $pos.x + $pos.s * $sind, 
+         $pos.y + $pos.s * $cosd;
+
+    goto $pos.x + $ry1 * $sind - $rx * $cosd,
+         $pos.y + $ry1 * $cosd + $rx * $sind;
+
+    if $s2 == 0 {
+        goto $pos.x, $pos.y;
+
+    } else {
+        goto $pos.x + $ry2 * $sind - 0.16 * $s2 * $cosd,
+             $pos.y + $ry2 * $cosd + 0.16 * $s2 * $sind;
+
+        goto $pos.x + $s2 * $sind,
+             $pos.y + $s2 * $cosd;
+
+        goto $pos.x + $ry2 * $sind + 0.16 * $s2 * $cosd,
+             $pos.y + $ry2 * $cosd - 0.16 * $s2 * $sind;
+    }
+    goto $pos.x + $pos.s * (0.9 * $sind + 0.16 * $cosd),
+         $pos.y + $pos.s * (0.9 * $cosd - 0.16 * $sind);
+    pen_up;
+}
+
 # -- small utilities --
 proc fill_outline res, th {
     local angle = 0;
@@ -179,12 +261,3 @@ proc stamp_shadow dx, dy, ghost {
     stamp;
     change_xy -dx, -dy; change_ghost_effect -$ghost;
 }
-
-# - demo code - 
-
-# onflag {
-#     forever {
-#         erase_all;
-#         fill_capped_line 0, 0, mouse_x(), mouse_y(), 50, 50;
-#     }
-# }
