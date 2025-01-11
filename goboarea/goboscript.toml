@@ -1,0 +1,5 @@
+no_miscellaneous_limits = false
+no_sprite_fencing = false
+frame_interpolation = false
+high_quality_pen = true
+frame_rate = 60
