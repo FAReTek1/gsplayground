@@ -33,6 +33,6 @@ These can be found in [the std folder](https://github.com/FAReTek1/gsplayground/
 - spritecontrol
     - utility procedures for controlling sprite position (size/pos hack) and other useful things to have more integration with the sprite's contents
 
-- utils
+- projectenv
     - utility functionality for dealing with the project environment (stop button pressed etc)
     

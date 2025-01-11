@@ -25,6 +25,15 @@ proc alts_at i, opcode, value {
     
     } elif opcode == "&=" {
         alts[$i] &= $value;
+
+    } elif opcode == "%=" {
+        alts[$i] %= $value;
+
+    } elif opcode == "++" {
+        alts[$i] ++;
+
+    } elif opcode == "--" {
+        alts[$i] --;
     }
 }
 

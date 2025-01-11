@@ -4,7 +4,7 @@
 # (for now, ignore this) NOTE: Including this module will cause your project to become unstoppable! (This probably won't affect your code)
 
 # Macro to be used with timer > boolean to create a when <bool> hat
-%define tbool(b) 0.0000000000001 / b # yeah, silly code ik, but it works
+%define TBOOL(b) 0.0000000000001 / b # yeah, silly code ik, but it works
 
 onflag {
     # Is it ideal if this resets on green flag? Probably
@@ -14,11 +14,10 @@ onflag {
     tick_number = 0;
     _utils_pt = 0;
     _utils_pdays_since_2000 = days_since_2000();
-
-    broadcast "_utils_loop";
 }
 
-on "_utils_loop" {
+# To manage the stuff, call this procedure every frame
+proc utils_loop {
     tick_number ++;
 
     # delta2000 = days_since_2000() - _utils_pdays_since_2000;
@@ -29,12 +28,10 @@ on "_utils_loop" {
 
     fps = 1 / delta;
     fpsmul = 30 * delta;
-
-    broadcast "_utils_loop";
 }
 
 # This **SHOULD** work, but goboscript doesn't seem to have proper support for the other hat blocks.
-ontimer > tbool(days_since_2000() - _utils_pdays_since_2000 > 0.0000015) {
+ontimer > TBOOL(days_since_2000() - _utils_pdays_since_2000 > 0.0000015) {
     # This code is not very exact. It actually just detects for a certain amount of lag spike via the days since 2000 reporter.
     pause_count ++;
     broadcast "utils_unpaused";
