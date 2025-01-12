@@ -44,7 +44,7 @@ func costume_count() {
 }
 
 list WxH costume_dimensions;
-proc cache_costume_dimensions{
+proc cache_costume_dims{
     delete costume_dimensions;
 
     local i = 1;
@@ -53,8 +53,7 @@ proc cache_costume_dimensions{
         # You could actually do a repeat until costume # == 1 but
         # you have to make sure it does the first iteration
         switch_costume i;
-        local WxH dim = measure_costume_wxh();
-        add dim to costume_dimensions;        
+        add measure_costume_wxh() to costume_dimensions;        
         i++;
     }
 }
@@ -99,8 +98,8 @@ func _measure_width(s, rd, x, y) { # rd = recursion depth
 }
 
 # - fisheye/whirl utils -
-%define NORM_FISHEYE(f) (f + 100) / 100
-%define DENORM_FISHEYE(f) f * 100 - 100
+%define NORM_FISHEYE(f) (((f) + 100) / 100)
+%define DENORM_FISHEYE(f) ((f) * 100 - 100)
 func apply_fisheye(f, Polar p) Polar {
     return Polar{
         r: POW(2 * $p.r, 1 / NORM_FISHEYE($f)) / 2,
@@ -109,11 +108,11 @@ func apply_fisheye(f, Polar p) Polar {
 }
 
 func inverse_fisheye(Polar old, Polar new) {
-    return DENORM_FISHEYE(ln(2 * $old.r) / ln(2 * $new.r));
+    return DENORM_FISHEYE((ln(2 * $old.r) / ln(2 * $new.r)));
 }
 
-%define NORM_WHIRL(w) w * 0.01745329251 # pi / 180
-%define DENORM_WHIRL(w) w / 0.01745329251
+%define NORM_WHIRL(w) ((w) * 0.01745329251) # pi / 180
+%define DENORM_WHIRL(w) ((w) / 0.01745329251)
 func apply_whirl(w, Polar p) Polar {
     return Polar{
         r: $p.r,
@@ -166,7 +165,7 @@ proc goto_pos pos pos {
 proc change_xy dx, dy {
     # Even with tw no fencing enabled, this is not equivalent to change x by dx; change y by dy;
     # because it causes differences when the pen is down
-    pos_hack x_position() + dx, y_position() + dy;
+    pos_hack x_position() + $dx, y_position() + $dy;
 }
 
 proc size_hack size {
@@ -207,6 +206,8 @@ proc hack_steps steps {
     change_xy $steps * sin(direction()),
               $steps * cos(direction());
 }
+
+%define RESET_POS goto 0,0; size_hack 100; point_in_direction 90;
 
 # - sprite ordering -
 # Griffpatch layering tutorial: https://www.youtube.com/watch?v=bxjbYJLAUYU
