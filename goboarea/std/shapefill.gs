@@ -201,6 +201,35 @@ proc fill_arc pos pos, ext, hole {
     }
 }
 
+# -- 'Cone'/pen-cap filler by @faretek1 and @wolther on scratch --
+costumes "std\\cone\\*.svg";
+
+proc fill_cone pos p, ext {
+    if 0 < $ext and $ext < 180 {
+        local r1 = $p.s / cos($ext / 2);
+        local r2 = $p.s / cos($ext / 4);
+        fill_tri $p.x + r1 * sin($p.d + $ext / 2),
+                 $p.y + r1 * cos($p.d + $ext / 2),
+                 $p.x + r2 * sin($p.d + $ext / 4),
+                 $p.y + r2 * cos($p.d + $ext / 4),
+                 $p.x + r2 * sin($p.d + $ext * 0.75),
+                 $p.y + r2 * cos($p.d + $ext * 0.75);
+
+        goto_pos pos{
+            x: $p.x, y: $p.y,
+            s: $p.s * 2,
+            d: $p.d
+        };
+
+        local i = ceil(log(360 / $ext) / 0.301);
+        switch_costume "shapefill cone" & i;
+        stamp;
+
+        turn_right $ext - 360 / antilog(0.301 * i);
+        stamp;
+    }
+}
+
 # -- Arrow filler for intros adapted from https://scratch.mit.edu/projects/1046239626/ --
 # Costumes by @infinitto on scratch: https://scratch.mit.edu/projects/1046239626/
 # Uses a specific size that cannot be changed here. If you want dynamic width, make one using 2 quad fills
@@ -282,6 +311,7 @@ proc _inner_AW_draw pos pos, s2, cosd, sind, rx, ry1, ry2 {
          $pos.y + $pos.s * (0.9 * $cosd - 0.16 * $sind);
     pen_up;
 }
+
 
 # -- small utilities --
 proc fill_outline res, th {

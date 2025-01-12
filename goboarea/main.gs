@@ -1,9 +1,10 @@
-%include std\\char.gs
+%include std\\shapefill.gs
 costumes "blank.svg";
 
 onflag {
-    ask "char1: ";
-    c1 = answer();
-    ask "char2: ";
-    say check(c1, answer());
+    forever {
+        erase_all;
+        RESET_POS;
+        fill_cone my_pos(), mouse_x();
+    }
 }
