@@ -97,14 +97,10 @@ proc goto_pt2d Pt2D p {
 }
 
 # --- Line2D ---
-proc draw_line Line2D l {
-    # We only check x1
-    if $l.x1 != "NaN"{
-        goto $l.x1, $l.y1;
-        pen_down;
-        goto $l.x2, $l.y2;
-        pen_up;
-    }
+func side_of_line(Pt2D p, Line l) {
+    # Return -1, 0, or 1 depending on the side of the line that point p is on. 0 means the point is on the line.
+    local det = (($l.x2 - $l.x1) * ($p.y - $l.y1)) - (($l.y2 - $l.y1) * ($p.x - $l.x1));
+    return SIGN(det);
 }
 
 func intersect_l2d(Line2D l1, Line2D l2) Pt2D {
