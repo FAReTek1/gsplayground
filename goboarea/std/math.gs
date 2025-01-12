@@ -30,7 +30,7 @@
 
 # Clamp `VALUE` between `MIN` and `MAX`.
 # (Returns `MIN` for `VALUE` < `MIN`, `MAX` for `VALUE` > `MAX`)
-%define CLAMP(VALUE,MIN,MAX) (((VALUE)>(MIN))*((MAX)+((VALUE)-(MAX))*((VALUE)<(MAX))))
+%define CLAMP(VALUE,MIN,MAX) ((MIN)*((VALUE)<=(MIN))) + ((MAX)*((VALUE)>=(MAX))) + ((VALUE)*((MIN)<(VALUE) and (VALUE)<(MAX)))
 
 # Return the `N`th bit of `V`'s binary representation.
 %define BIT(N, V) (((V) // antiln((N) * ln 2) % 2)
