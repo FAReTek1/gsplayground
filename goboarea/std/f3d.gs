@@ -1,12 +1,14 @@
 # Fisheye '3D' stretching
 # Inspired by @kobajin on scratch
+# The engine assumes to have 5 costumes each for x/y rot + the original costume
+
 %include std\\spritecontrol.gs
 # %include std\\geo2d.gs
 
 %define _CHECK_LAYER_BUG(theta) (theta - 87) % 180 < 6
 
-func _check_draw_at_rot(theta) {
-    return _CHECK_LAYER_BUG($theta) and ($theta - 90) % 360 > 180;
+func check_draw_at_rot(theta) {
+    return not(_CHECK_LAYER_BUG($theta)) and ($theta - 90) % 360 > 180;
 }
 
 proc _f3d_by_x cost, xw, coef, WxH og {
@@ -45,6 +47,7 @@ proc _f3d_by_y cost, yw, coef, WxH og {
 
 func f3d_stretch_wh(cost, xw, yw, flip) {
     # Stretch with a given width or height
+    # Returns whether you should stamp or not
     switch_costume $cost & " OG";
     local WxH ogdims = costume_dimensions[costume_number()];
     local stp = true;
@@ -93,4 +96,38 @@ func f3d(cost, xd, yd) {
         local stp = f3d_stretch_wh($cost, "", cos($yd), $yd % 360 > 180);
     }
     return stp;
+}
+
+proc f3d_prism pos p, cost, xd, yd, layer_count, depth {
+    local i = 0;
+    repeat $layer_count{
+        goto_pos $p;
+
+        if $xd > "" {
+            hack_steps i;
+
+            if _CHECK_LAYER_BUG($xd) {
+                switch_costume $cost & " XF";
+                stamp;
+
+            } elif f3d_stretch_wh($cost, cos($xd), "", $xd % 360 > 180) {
+                stamp;
+            }
+            
+        } else {
+            turn_left 90;
+            hack_steps i;
+            turn_right 90;
+
+            if _CHECK_LAYER_BUG($yd) {
+                switch_costume $cost & " YF";
+                stamp;
+
+            } elif f3d_stretch_wh($cost, "", cos($yd), $yd % 360 > 180) {
+                stamp;
+            }
+        }
+
+        i += ($depth / $layer_count) * sin($xd + $yd); # If it has some rotation, this affects the perceived depth
+    }
 }
