@@ -1,7 +1,7 @@
 # module allowing for more control over the sprite's attributes
 # This includes:
 # - Pos/size hack
-%include std\\math.gs
+# %include std\\math.gs
 %include std\\geo2d.gs
 
 costumes "std\\size0.svg", "std\\size1.svg", "std\\size2.svg";
@@ -124,7 +124,6 @@ func apply_whirl(w, Polar p) Polar {
 func inverse_whirl(Polar old, Polar new) {
     return DENORM_WHIRL(($old.t - $new.t) / antiln(0.6931471805599453 - 1.3862943611198906 * $old.r));
 }
-
 
 # - Sound effect utils -
 nowarp proc get_sound_length sound, inaccuracy {
