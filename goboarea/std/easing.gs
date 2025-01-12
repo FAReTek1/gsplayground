@@ -11,6 +11,8 @@ func safepow(x, y) {
     return (POW(abs($x), $y)) * (SGNBOOL($x < 0 and $y % 2 == 1));
 }
 
+%define smooth_glide(value, goal, speed) value += (goal - value) / speed;
+
 # Macro to get the timer value for use in easings. Redefine to allow configuration
 %define etime() timer()
 

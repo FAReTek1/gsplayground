@@ -2,7 +2,8 @@
 # Mainly for unicode
 
 # https://scratch.mit.edu/projects/950639531/
-# Translate is not yet supported 
+# Translate is not yet supported
+# Make a web request to the translate server to fetch a character by unicode index
 # func req_chr(idx) {
 #     if 13312 < $i and $i < 40959{
 #         return translate "Japanese", "&#" & $idx & ";";
