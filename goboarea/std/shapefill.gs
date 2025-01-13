@@ -73,7 +73,7 @@ proc draw_crescent Circle c1, Circle c2, res {
             draw_circle $c1, $res;
             draw_circle $c2, $res;
         }
-        
+
     } else {
         local d1 = DIR($c2.x, $c2.y, isct.x2, isct.y2);
         local d2 = DIR($c2.x, $c2.y, isct.x1, isct.y1);
@@ -205,7 +205,10 @@ proc fill_segment pos pos, ext {
         local i = floor(ln($ext / 360) / 0.6931471805599453);
         switch_costume "shapefill segment " & i;
 
-        goto_pos $pos;
+        pos_hack $pos.x, $pos.y;
+        size_hack $pos.s * 2;
+        point_in_direction $pos.d;
+
         stamp;
 
         i = 360 * antiln(i * 0.6931471805599453);
@@ -214,16 +217,19 @@ proc fill_segment pos pos, ext {
             stamp;
             local fin = $pos.d + $ext;
             local md = $pos.d + $ext / 2;
-            local r = $pos.s / 2;
 
-            fill_tri sin($pos.d) * r + $pos.x,
-                     cos($pos.d) * r + $pos.y,
-                     sin(fin) * r + $pos.x,
-                     cos(fin) * r + $pos.y,
-                     sin(md) * r + $pos.x,
-                     cos(md) * r + $pos.y;
+            switch_costume "size0";
+            set_size "Infinity";
+            fill_tri sin($pos.d) * $pos.s + $pos.x,
+                     cos($pos.d) * $pos.s + $pos.y,
+                     sin(fin) * $pos.s + $pos.x,
+                     cos(fin) * $pos.s + $pos.y,
+                     sin(md) * $pos.s + $pos.x,
+                     cos(md) * $pos.s + $pos.y;
         }
-    }
+    } elif $ext < -0.703125 {
+        fill_segment pos{x: $pos.x, y: $pos.y, s: $pos.s, d: $pos.d + $ext}, -$ext;
+    } 
 }
 
 proc draw_segment pos p, ext, res {
@@ -411,4 +417,35 @@ proc stamp_shadow dx, dy, ghost {
     change_xy dx, dy; change_ghost_effect $ghost;
     stamp;
     change_xy -dx, -dy; change_ghost_effect -$ghost;
+}
+
+proc clip_circles Circle c1, Circle c2 {
+    # render the intersection between 2 circles. todo: make a struct that this outputs and seperate rendering and clipping
+    local PtX2 isct = intersect_circles($c1, $c2);
+    if isct.x1 == intersect_circle_error_codes.circinside {
+        if $c1.r > $c2.r {
+            fill_circle $c2;
+        } else {
+            fill_circle $c1;
+        }
+        
+    } elif isct.x1 != intersect_circle_error_codes.notouch {
+        local d1 = DIR($c2.x, $c2.y, isct.x2, isct.y2);
+        local d2 = DIR($c2.x, $c2.y, isct.x1, isct.y1);
+
+        if d1 < d2 {
+            fill_segment pos_from_circle($c2, 180 + d1), -360 + (d2 - d1);
+        } else {
+            fill_segment pos_from_circle($c2, 180 + d1), d2 - d1;
+        }
+
+        d1 = DIR($c1.x, $c1.y, isct.x2, isct.y2);
+        d2 = DIR($c1.x, $c1.y, isct.x1, isct.y1);
+
+        if d1 < d2 {
+            fill_segment pos_from_circle($c1, 180 + d2), d1 - d2;
+        } else {
+            fill_segment pos_from_circle($c1, 180 + d2), -360 + (d1 - d2);
+        }
+    }
 }

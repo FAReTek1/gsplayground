@@ -17,8 +17,8 @@ onflag {
         erase_all;
         pointengine_control_tick;
         
-        Circle c1 =circle_by_idx(1, 2);
-        Circle c2 =circle_by_idx(3, 4);
+        Circle c1 = circle_by_idx(1, 2);
+        Circle c2 = circle_by_idx(3, 4);
 
         set_pen_size 3;
 
@@ -31,8 +31,10 @@ onflag {
         PtX2 ret = intersect_circles(c1, c2);
         draw_ptx2 ret;
         
-        draw_crescent c1, c2, 30;
-
+        # draw_crescent c1, c2, 30;
+        clip_circles c1, c2;
+        
+        size_hack "Infinity";
         pointengine_render;
     }
 }
