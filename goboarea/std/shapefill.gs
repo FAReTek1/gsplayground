@@ -30,6 +30,7 @@ proc draw_box Box b {
     goto $b.xmin, $b.ymin; pen_up;
 }
 
+# -- Line (2D) --
 proc draw_line Line2D l {
     # We only check x1
     if $l.x1 != "NaN"{
@@ -39,6 +40,73 @@ proc draw_line Line2D l {
         pen_up;
     }
 }
+
+# Miter filler by @faretek1 on scratch
+# completely broken rn
+proc fill_miter Line2D l1, Line2D l2, th {
+    # Assume l2.x1, l2.y2 to be equal to l1.x2, l1.y2
+    local dst1 = line_length($l1);
+    local v1x = (line_dx($l1) / dst1) * (($th - 1) / 2);
+    local v1y = (line_dy($l1) / dst1) * (($th - 1) / 2);
+
+    local dst2 = line_length($l2);
+    local v2x = (line_dx($l2) / dst1) * (($th - 1) / 2);
+    local v2y = (line_dy($l2) / dst1) * (($th - 1) / 2);
+
+    local cmp1 = (v1x * v2y) + abs(v1y * v2x);
+    local cmp2 = (v1y * v2x) - abs(v1x * v2y);
+
+    if  cmp1 <= 0 or cmp2 <= 0 {
+        if (v1x * v2y) - (v1y * v2x) == 0 {
+            fill_miter Line2D{
+                x1: $l1.x1, 
+                y1: $l1.y1,
+                x2: $l1.x2,
+                y2: $l1.y2 + 0.5
+            }, Line2D{
+                x1: $l2.x1, 
+                y1: $l2.y1 + 0.5,
+                x2: $l2.x2,
+                y2: $l2.y2 + 0.5
+            }, $th; 
+
+        } else {
+            local Pt2D ints = intersect_l2d(
+                Line2D{
+                    x1: $l1.x1 + v1y,
+                    y1: $l1.y1 - v1x,
+                    x2: $l1.x1 + v1y + v1x,
+                    y2: $l1.y1 - v1x + v1y
+                },
+                Line2D{
+                    x1: $l2.x2 - v2y,
+                    y1: $l2.y2 + v2x,
+                    x2: $l2.x2 - v2y + v2x,
+                    y2: $l2.y2 + v2x + v2y
+                }
+            );
+            
+            fill_tri
+                ints.x, ints.y,
+                $l1.x2 + v1y, $l1.y2 - v1x,
+                $l1.x2 - v2y, $l1.y2 + v2x;
+        }
+
+    } else {
+        fill_miter Line2D{
+                x1: $l2.x2, 
+                y1: $l2.y2,
+                x2: $l2.x1,
+                y2: $l2.y1
+            }, Line2D{
+                x1: $l1.x2, 
+                y1: $l1.y2,
+                x2: $l1.x1,
+                y2: $l1.y1
+            }, $th; 
+    }
+}
+
 
 # -- Circle --
 proc fill_circle Circle c {
@@ -59,6 +127,37 @@ proc draw_circle Circle c, res {
     }
 
     pen_up;
+}
+
+proc clip_circles Circle c1, Circle c2 {
+    # render the intersection between 2 circles. todo: make a struct that this outputs and seperate rendering and clipping
+    local PtX2 isct = intersect_circles($c1, $c2);
+    if isct.x1 == intersect_circle_error_codes.circinside {
+        if $c1.r > $c2.r {
+            fill_circle $c2;
+        } else {
+            fill_circle $c1;
+        }
+        
+    } elif isct.x1 != intersect_circle_error_codes.notouch {
+        local d1 = DIR($c2.x, $c2.y, isct.x2, isct.y2);
+        local d2 = DIR($c2.x, $c2.y, isct.x1, isct.y1);
+
+        if d1 < d2 {
+            fill_segment pos_from_circle($c2, 180 + d1), -360 + (d2 - d1);
+        } else {
+            fill_segment pos_from_circle($c2, 180 + d1), d2 - d1;
+        }
+
+        d1 = DIR($c1.x, $c1.y, isct.x2, isct.y2);
+        d2 = DIR($c1.x, $c1.y, isct.x1, isct.y1);
+
+        if d1 < d2 {
+            fill_segment pos_from_circle($c1, 180 + d2), d1 - d2;
+        } else {
+            fill_segment pos_from_circle($c1, 180 + d2), -360 + (d1 - d2);
+        }
+    }
 }
 
 # -- crescent fill/draw by @faretek1 on scratch --
@@ -417,35 +516,4 @@ proc stamp_shadow dx, dy, ghost {
     change_xy dx, dy; change_ghost_effect $ghost;
     stamp;
     change_xy -dx, -dy; change_ghost_effect -$ghost;
-}
-
-proc clip_circles Circle c1, Circle c2 {
-    # render the intersection between 2 circles. todo: make a struct that this outputs and seperate rendering and clipping
-    local PtX2 isct = intersect_circles($c1, $c2);
-    if isct.x1 == intersect_circle_error_codes.circinside {
-        if $c1.r > $c2.r {
-            fill_circle $c2;
-        } else {
-            fill_circle $c1;
-        }
-        
-    } elif isct.x1 != intersect_circle_error_codes.notouch {
-        local d1 = DIR($c2.x, $c2.y, isct.x2, isct.y2);
-        local d2 = DIR($c2.x, $c2.y, isct.x1, isct.y1);
-
-        if d1 < d2 {
-            fill_segment pos_from_circle($c2, 180 + d1), -360 + (d2 - d1);
-        } else {
-            fill_segment pos_from_circle($c2, 180 + d1), d2 - d1;
-        }
-
-        d1 = DIR($c1.x, $c1.y, isct.x2, isct.y2);
-        d2 = DIR($c1.x, $c1.y, isct.x1, isct.y1);
-
-        if d1 < d2 {
-            fill_segment pos_from_circle($c1, 180 + d2), d1 - d2;
-        } else {
-            fill_segment pos_from_circle($c1, 180 + d2), -360 + (d1 - d2);
-        }
-    }
 }

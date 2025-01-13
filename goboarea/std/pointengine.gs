@@ -88,3 +88,12 @@ func circle_by_idx(i1, i2) Circle {
 func pt2d_by_idx(i) Pt2D {
     return Pt2D{x: pts[$i].x, y: pts[$i].y};
 }
+
+func line_by_idx(i1, i2) Line2D {
+    return Line2D{
+        x1: pts[$i1].x,
+        y1: pts[$i1].y,
+        x2: pts[$i2].x,
+        y2: pts[$i2].y
+    };
+}

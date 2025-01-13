@@ -129,6 +129,13 @@ func l2d_to_mxc(Line2D l) MxPlusC {
     }
 }
 
+func line_length(Line2D l) {
+    return DIST($l.x1, $l.y1, $l.x2, $l.y2);
+}
+
+%define line_dx(l) (l.x2 - l.x1)
+%define line_dy(l) (l.y2 - l.y1)
+
 # --- Circle ---
 
 func circle_at (Pt2D p, r) Circle {

@@ -7,32 +7,29 @@ onflag {
     hide;
     delete pts;
 
-    repeat 4 {
+    repeat 3 {
         add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
     }
 
     forever {
         size_hack "Infinity";
+        pointengine_control_tick;
 
         erase_all;
-        pointengine_control_tick;
-        
-        Circle c1 = circle_by_idx(1, 2);
-        Circle c2 = circle_by_idx(3, 4);
 
-        set_pen_size 3;
+        Line2D l1 = line_by_idx(1, 2);
+        Line2D l2 = line_by_idx(2, 3);
+
+        th = 50;
 
         set_pen_color "#0000FF";
-        draw_circle c1, 30;
-        set_pen_color "#FFFFFF";
-        draw_circle c2, 30;
+        set_pen_size th;
+        draw_line l1;
+        draw_line l2;
 
         set_pen_color "#00FF00";
-        PtX2 ret = intersect_circles(c1, c2);
-        draw_ptx2 ret;
-        
-        # draw_crescent c1, c2, 30;
-        clip_circles c1, c2;
+        fill_miter l1, l2, th;
+
         
         size_hack "Infinity";
         pointengine_render;
