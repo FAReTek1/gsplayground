@@ -15,6 +15,10 @@ struct cRGB {
     # No alpha - would add this if there is a way to do struct value defaulting
     r, g, b
 }
+struct cRGBA {
+    # Red, Green, Blue & Alpha
+    r, g, b, a
+}
 struct cCBGBG {
     # Color brightness1 ghost1 brightness2 ghost2
     # The format that allows setting a sprite to any color
@@ -32,6 +36,91 @@ func HSV_to_CBGBG (cHSV c, alpha) cCBGBG {
         };
     }
     
+}
+
+# --- RGB ---
+func RGB_to_RGBA(cRGB c) cRGBA {
+    return cRGBA{
+        r: $c.r, g: $c.g, b: $c.b, a: 255
+    };
+}
+
+# Adapted from https://scratch.mit.edu/projects/623945749/ by @-Rex- on scratch
+func RGBA_to_CBGBG(cRGBA c) cCBGBG {
+    local a = $c.a / 255;
+    if $c.r < $c.g or $c.r < $c.b {
+        if $c.g < $c.r or $c.g < $c.b {
+            local temp1 = $c.b;
+            local temp4 = 133.33333333333333;
+
+            if $c.r > $c.g {
+                local temp2 = $c.r;
+                local temp3 = $c.g;
+                local temp5 = 33.333333333333333;
+            } else {
+                local temp2 = $c.g;
+                local temp3 = $c.r;
+                local temp5 = -33.333333333333333;
+            }
+
+        } else {
+            local temp1 = $c.g;
+            local temp4 = 66.66666666666667;
+
+            if $c.r > $c.b {
+                local temp2 = $c.r;
+                local temp3 = $c.b;
+                local temp5 = -33.333333333333333;
+            } else {
+                local temp2 = $c.b;
+                local temp3 = $c.r;
+                local temp5 = 33.333333333333333;
+            }
+        }
+    } else {
+        local temp1 = $c.r;
+        if $c.g > $c.b {
+            local temp4 = 0;
+            local temp2 = $c.g;
+            local temp3 = $c.b;
+            local temp5 = 33.333333333333333;
+        } else {
+            local temp4 = 200;
+            local temp2 = $c.b;
+            local temp3 = $c.g;
+            local temp5 = -33.333333333333333;
+        }
+    }
+
+    local cCBGBG ret = cCBGBG{};
+    if temp1 < 128 {
+        ret.b2 = 100;
+        ret.b1 = (255 * (temp1 - temp3)) / (255 - temp3);
+        ret.c = temp4 + temp5 * ((((255 * (temp2 - temp3)) / (255 - temp3)) + (255 - ret.b1)) / 255);
+        ret.b1 = 0.39215686274509803 * ret.b1 - 100;
+        ret.g2 = 100 - 0.39215686274509803 * temp3;
+    } else {
+        ret.b2 = -100;
+        ret.b1 = 100 * (temp3 / temp1);
+        ret.c = temp4 + temp5 * ((temp2 - temp3) / temp1);
+        ret.g2 = 0.39215686274509803 * temp1;
+    }
+
+    if a >= 1 {
+        ret.g1 = 0;
+    } elif a > 0 {
+        ret.g1 = 100 - 100 * ((a * ret.g2) / (100 - (a * (100 - ret.g2))));
+        ret.g2 = 100 - a * (100 - ret.g2);
+    } else {
+        ret.g1 = 0;
+        ret.g2 = 0;
+    }
+
+    if ret.g2 <= 0 {
+        ret.g1 = 100;
+    }
+
+    return ret;
 }
 
 # --- HEX ---
