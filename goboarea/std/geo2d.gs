@@ -136,6 +136,8 @@ func line_length(Line2D l) {
 %define line_dx(l) (l.x2 - l.x1)
 %define line_dy(l) (l.y2 - l.y1)
 
+%define line_dx2(l) (l.x1 - l.x2)
+%define line_dy2(l) (l.y1 - l.y2)
 # --- Circle ---
 
 func circle_at (Pt2D p, r) Circle {

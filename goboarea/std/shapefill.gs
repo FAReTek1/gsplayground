@@ -50,14 +50,15 @@ proc fill_miter Line2D l1, Line2D l2, th {
     local v1y = (line_dy($l1) / dst1) * (($th - 1) / 2);
 
     local dst2 = line_length($l2);
-    local v2x = (line_dx($l2) / dst1) * (($th - 1) / 2);
-    local v2y = (line_dy($l2) / dst1) * (($th - 1) / 2);
+    local v2x = (line_dx2($l2) / dst2) * (($th - 1) / 2);
+    local v2y = (line_dy2($l2) / dst2) * (($th - 1) / 2);
 
     local cmp1 = (v1x * v2y) + abs(v1y * v2x);
     local cmp2 = (v1y * v2x) - abs(v1x * v2y);
 
-    if  cmp1 <= 0 or cmp2 <= 0 {
-        if (v1x * v2y) - (v1y * v2x) == 0 {
+    if cmp1 <= 0 or cmp2 >= 0 {
+        local cmp3 = v1x * v2y - v1y * v2x;
+        if cmp3 == 0 {
             fill_miter Line2D{
                 x1: $l1.x1, 
                 y1: $l1.y1,
@@ -69,28 +70,27 @@ proc fill_miter Line2D l1, Line2D l2, th {
                 x2: $l2.x2,
                 y2: $l2.y2 + 0.5
             }, $th; 
-
-        } else {
-            local Pt2D ints = intersect_l2d(
-                Line2D{
-                    x1: $l1.x1 + v1y,
-                    y1: $l1.y1 - v1x,
-                    x2: $l1.x1 + v1y + v1x,
-                    y2: $l1.y1 - v1x + v1y
-                },
-                Line2D{
-                    x1: $l2.x2 - v2y,
-                    y1: $l2.y2 + v2x,
-                    x2: $l2.x2 - v2y + v2x,
-                    y2: $l2.y2 + v2x + v2y
-                }
-            );
-            
-            fill_tri
-                ints.x, ints.y,
-                $l1.x2 + v1y, $l1.y2 - v1x,
-                $l1.x2 - v2y, $l1.y2 + v2x;
         }
+
+        local Pt2D ints = intersect_l2d(
+            Line2D{
+                x1: ($l1.x1 + v1y),
+                y1: ($l1.y1 - v1x),
+                x2: ($l1.x1 + v1y) + v1x,
+                y2: ($l1.y1 - v1x) + v1y
+            },
+            Line2D{
+                x1: ($l2.x2 - v2y),
+                y1: ($l2.y2 + v2x),
+                x2: ($l2.x2 - v2y) + v2x,
+                y2: ($l2.y2 + v2x) + v2y
+            }
+        );
+            
+        fill_tri
+            ints.x, ints.y,
+            $l1.x2 + v1y, $l1.y2 - v1x,
+            $l1.x2 - v2y, $l1.y2 + v2x;
 
     } else {
         fill_miter Line2D{
@@ -105,8 +105,8 @@ proc fill_miter Line2D l1, Line2D l2, th {
                 y2: $l1.y1
             }, $th; 
     }
-}
 
+}
 
 # -- Circle --
 proc fill_circle Circle c {

@@ -7,9 +7,12 @@ onflag {
     hide;
     delete pts;
 
-    repeat 3 {
-        add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
-    }
+    # repeat 3 {
+    #     add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
+    # }
+    add PE_Pt{x: 0, y: 0, col: "#FF0000"} to pts;
+    add PE_Pt{x: 112, y: 119, col: "#FF0000"} to pts;
+    add PE_Pt{x: -100, y: 0, col: "#FF0000"} to pts;
 
     forever {
         size_hack "Infinity";
@@ -17,8 +20,8 @@ onflag {
 
         erase_all;
 
-        Line2D l1 = line_by_idx(1, 2);
-        Line2D l2 = line_by_idx(2, 3);
+        Line2D l1 = line_by_idx(3, 1);
+        Line2D l2 = line_by_idx(1, 2);
 
         th = 50;
 
