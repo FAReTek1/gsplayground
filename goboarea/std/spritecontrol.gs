@@ -13,6 +13,18 @@ struct pos {
     d  # direction
 }
 
+func pos_from_pt2d(Pt2D p, s, d) pos {
+    return pos{
+        x: $p.x, y: $p.y, s:$s, d: $d
+    };
+}
+
+func pos_from_circle(Circle c, d) pos {
+    return pos{
+        x: $c.x, y: $c.y, s: $c.r, d: $d
+    };
+}
+
 struct WxH {w, h} # Width & height
 
 func my_pos() pos {

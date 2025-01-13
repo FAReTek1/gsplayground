@@ -19,13 +19,6 @@ proc draw_ptx2 PtX2 pts {
     }
 }
 
-proc fill_circle Circle c {
-    # literally paint a dot
-    goto $c.x, $c.y;
-    set_pen_size 2 * $c.r;
-    pen_down;
-    pen_up;
-}
 
 proc draw_box Box b {
     goto $b.xmin, $b.ymin; pen_down;
@@ -44,6 +37,62 @@ proc draw_line Line2D l {
         pen_down;
         goto $l.x2, $l.y2;
         pen_up;
+    }
+}
+
+# -- Circle --
+proc fill_circle Circle c {
+    # literally paint a dot
+    goto $c.x, $c.y;
+    set_pen_size 2 * $c.r;
+    pen_down; pen_up;
+}
+
+proc draw_circle Circle c, res {
+    local angle = 0;
+    goto $c.x, $c.y + $c.r;
+    pen_down;
+
+    repeat $res {
+        angle += 360 / $res;
+        goto $c.x + $c.r * sin(angle), $c.y + $c.r * cos(angle);
+    }
+
+    pen_up;
+}
+
+# -- crescent fill/draw by @faretek1 on scratch --
+# There is potentially a more optimal algo for this
+# A crescent is defined by a main circle and a second circle cut out of it.
+proc draw_crescent Circle c1, Circle c2, res {
+    local PtX2 isct = intersect_circles($c1, $c2);
+    if isct.x1 == intersect_circle_error_codes.notouch {
+        draw_circle $c1, $res;
+    } elif isct.x1 == intersect_circle_error_codes.circinside {
+        if $c1.r > $c2.r {
+            draw_circle $c1, $res;
+            draw_circle $c2, $res;
+        }
+        
+    } else {
+        local d1 = DIR($c2.x, $c2.y, isct.x2, isct.y2);
+        local d2 = DIR($c2.x, $c2.y, isct.x1, isct.y1);
+
+        if d1 < d2 {
+            draw_arc_edge pos_from_circle($c2, 180 + d1), -360 + (d2 - d1), $res;
+        } else {
+            draw_arc_edge pos_from_circle($c2, 180 + d1), d2 - d1, $res;
+        }
+
+        d1 = DIR($c1.x, $c1.y, isct.x2, isct.y2);
+        d2 = DIR($c1.x, $c1.y, isct.x1, isct.y1);
+
+        if d1 < d2 {
+            draw_arc_edge pos_from_circle($c1, 180 + d1), -360 + (d2 - d1), $res;
+        } else {
+            draw_arc_edge pos_from_circle($c1, 180 + d1), d2 - d1, $res;
+        }
+
     }
 }
 
@@ -177,6 +226,24 @@ proc fill_segment pos pos, ext {
     }
 }
 
+proc draw_segment pos p, ext, res {
+    goto $p.x + $p.s * sin($p.d), 
+         $p.y + $p.s * cos($p.d);
+    pen_down;
+
+    local angle = $p.d;
+    repeat $res {
+        angle += $ext / $res;
+        goto $p.x + $p.s * sin(angle),
+             $p.y + $p.s * cos(angle);
+    }
+
+    goto $p.x + $p.s * sin($p.d), 
+         $p.y + $p.s * cos($p.d);
+
+    pen_up;
+}
+
 # -- arc fill by @faretek1 on scratch --
 # Original technique by spinningcube
 costumes "std\\arc\\*.svg";
@@ -201,6 +268,21 @@ proc fill_arc pos pos, ext, hole {
     }
 }
 
+proc draw_arc_edge pos p, ext, res {
+    goto $p.x + $p.s * sin($p.d), 
+         $p.y + $p.s * cos($p.d);
+    pen_down;
+
+    local angle = $p.d;
+
+    repeat $res {
+        angle += $ext / $res;
+        goto $p.x + $p.s * sin(angle),
+             $p.y + $p.s * cos(angle);
+    }
+
+    pen_up;
+}
 # -- 'Cone'/pen-cap filler by @faretek1 and @wolther on scratch --
 costumes "std\\cone\\*.svg";
 
@@ -311,7 +393,6 @@ proc _inner_AW_draw pos pos, s2, cosd, sind, rx, ry1, ry2 {
          $pos.y + $pos.s * (0.9 * $cosd - 0.16 * $sind);
     pen_up;
 }
-
 
 # -- small utilities --
 proc fill_outline res, th {

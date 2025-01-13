@@ -137,6 +137,11 @@ func circle_at (Pt2D p, r) Circle {
     };
 }
 
+enum intersect_circle_error_codes {
+    notouch = "notouch",
+    circinside = "circinside",
+}
+
 func intersect_circles(Circle c1, Circle c2) PtX2 {
     # i1 & i2
     local dx = $c2.x - $c1.x;
@@ -147,11 +152,11 @@ func intersect_circles(Circle c1, Circle c2) PtX2 {
     local dist = sqrt(disquared);
 
     if dist > $c1.r + $c2.r {
-        return PtX2{x1: "notouch", x2: "notouch"};
+        return PtX2{x1: intersect_circle_error_codes.notouch, x2: intersect_circle_error_codes.notouch};
     }
 
     if dist < abs($c1.r - $c2.r) {
-        return PtX2{x1: "circinside", x2: "circinside"};
+        return PtX2{x1: intersect_circle_error_codes.circinside, x2: intersect_circle_error_codes.circinside};
     }
     
     # i1 & i2

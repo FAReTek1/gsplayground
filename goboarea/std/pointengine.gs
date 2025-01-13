@@ -75,10 +75,16 @@ proc pointengine_tick {
     pointengine_render;
 }
 
+# Utilities for generating shapes from point indecies
+
 func circle_by_idx(i1, i2) Circle {
     return Circle{
         x: (pts[$i1].x + pts[$i2].x) / 2,
         y: (pts[$i1].y + pts[$i2].y) / 2,
         r: DIST(pts[$i1].x, pts[$i1].y, pts[$i2].x, pts[$i2].y) / 2
     };
+}
+
+func pt2d_by_idx(i) Pt2D {
+    return Pt2D{x: pts[$i].x, y: pts[$i].y};
 }
