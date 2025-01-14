@@ -33,13 +33,13 @@
 %define CLAMP(VALUE,MIN,MAX) ((MIN)*((VALUE)<=(MIN))) + ((MAX)*((VALUE)>=(MAX))) + ((VALUE)*((MIN)<(VALUE) and (VALUE)<(MAX)))
 
 # Return the `N`th bit of `V`'s binary representation.
-%define BIT(N, V) (((V) // antiln((N) * ln 2) % 2)
+%define BIT(N, V) ((V) // antiln((N) * ln 2) % 2)
 
 # Return the distance between the points `(X1,Y1)` and `(X2,Y2)`.
 %define DIST(X1,Y1,X2,Y2) sqrt(((X2)-(X1))*((X2)-(X1))+((Y2)-(Y1))*((Y2)-(Y1)))
 
 # Return the direction (of a sprite) from a position  `(CX, CY)` to `(X, Y)`
-%define DIR(X,Y,CX,CY) atan ((X-CX) / (Y-CY)) + 180 * (CY > Y)
+%define DIR(X,Y,CX,CY) atan (((X)-(CX)) / ((Y)-(CY))) + 180 * ((CY) > (Y))
 
 # Atan2 value of y, then x. Adapted from meunspeakable (probably)
 # You may want to check edge cases at angles of 90 degrees (0, 90, 180, 270)

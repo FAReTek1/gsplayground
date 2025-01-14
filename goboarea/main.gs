@@ -10,9 +10,9 @@ onflag {
     # repeat 3 {
     #     add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
     # }
-    add PE_Pt{x: 0, y: 0, col: "#FF0000"} to pts;
-    add PE_Pt{x: 112, y: 119, col: "#FF0000"} to pts;
-    add PE_Pt{x: -100, y: 0, col: "#FF0000"} to pts;
+    add PE_Pt{x: 79, y: -50, col: "#FF0000"} to pts; # 0. 0
+    add PE_Pt{x: 23, y: -73, col: "#FF0000"} to pts; # 112, 119
+    add PE_Pt{x: -100, y: 0, col: "#FF0000"} to pts; # -100, 0
 
     forever {
         size_hack "Infinity";
@@ -31,7 +31,7 @@ onflag {
         draw_line l2;
 
         set_pen_color "#00FF00";
-        fill_miter l1, l2, th;
+        fill_miter_arc l1, l2, th;
 
         
         size_hack "Infinity";
