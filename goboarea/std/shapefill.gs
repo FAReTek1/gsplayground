@@ -596,7 +596,7 @@ proc stamp_shadow dx, dy, ghost {
     change_xy -dx, -dy; change_ghost_effect -$ghost;
 }
 
-# -- stuff for geo2d clip rendering --
+# -- geo2d clip rendering --
 proc _cnc_segment_by_coords Pt2D p1, Pt2D p2 {
     local d1 = ptdir($p1, circle_pt(cnc_circle)) % 360;
     local d2 = ptdir($p2, circle_pt(cnc_circle)) % 360;
@@ -643,5 +643,47 @@ proc render_cnc {
             }
         }
 
+    }
+}
+
+# -- Intro effect shapes --
+proc fill_arc_starting_at pos p, ext, hole, center_rot, overall_size {
+    fill_arc pos{
+        x: $p.x - $p.s * sin($p.d),
+        y: $p.y - $p.s * cos($p.d),
+        s: $p.s * $overall_size,
+        d: $p.d + $center_rot - $ext
+    }, $ext, $hole;
+}
+proc fill_arc_ending_at pos p, ext, hole, center_rot, overall_size {
+    fill_arc pos{
+        x: $p.x - $p.s * sin($p.d),
+        y: $p.y - $p.s * cos($p.d),
+        s: $p.s * $overall_size,
+        d: $p.d + $center_rot
+    }, $ext, $hole;
+}
+
+proc draw_arc_CLE pos p, arcd, ext, hole, sz, ct, is_cw {
+    # pos, arc dir, extent, thickness, arc size, arc count, clockwise or not
+    local d = $p.d;
+    repeat $ct {
+        if $is_cw {
+            fill_arc_starting_at pos{
+                x: $p.x,
+                y: $p.y,
+                s: $p.s,
+                d: d
+            }, $ext, $hole, $arcd, $sz/100;
+        } else {
+            fill_arc_ending_at pos{
+                x: $p.x,
+                y: $p.y,
+                s: $p.s,
+                d: d
+            }, $ext, $hole, $arcd, $sz/100;
+
+        }
+        d += 360 / $ct;
     }
 }

@@ -206,12 +206,11 @@ func intersect_circles(Circle c1, Circle c2) PtX2 {
 
 }
 
-# Circle-ngon clipper based on wolther-scripts
-# Not working yet
+# Circle-ngon clipper based on wolther-scripts's clipper
 # Ngon passed in as list
 list Pt2D cnc_ngon;
-list Pt2D _cnc_buffer1;
-list Pt2D _cnc_buffer2;
+list Pt2D _cnc_buffer1; # Internal list used by circle-ngon clip for output
+list Pt2D _cnc_buffer2; # Internal list used by circle-ngon clip for output
 
 proc _cnc_inr_circle_line Circle c, Line2D l {
     if $l.x1 == $l.x2 {
@@ -331,7 +330,7 @@ proc circle_ngon_clip Circle c {
         repeat length cnc_ngon {
             local nx = (cnc_ngon[i].y - cnc_ngon[j].y) * flip;
             local ny = (cnc_ngon[j].x - cnc_ngon[i].x) * flip;
-            local nv = nx * cnc_ngon[i].x + $c.y * cnc_ngon[i].y;
+            local nv = nx * cnc_ngon[i].x + ny * cnc_ngon[i].y;
             if nx * $c.x + ny * $c.y < nv {
                 add Pt2D{x: "OUT POLY", y: "OUT POLY"} to _cnc_buffer1;
                 stop_this_script;
