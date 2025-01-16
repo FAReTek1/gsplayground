@@ -49,6 +49,9 @@
 # 'Undefined' behaviour when used with non-numbers or booleans
 %define SIGN(V) (V > 0) - (V[i] == "-")
 
+# true -> 1, false -> -1
+%define SGNBOOL(b) (2 * (b)) - 1
+
 %define ACOSH(X) ln((X)+sqrt((X)*(X)-1))
 %define ASINH(X) ln((X)+sqrt((X)*(X)+1))
 %define ATANH(X) ln((1+(X))/(1-(X)))/2

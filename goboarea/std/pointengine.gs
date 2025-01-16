@@ -11,21 +11,33 @@ struct PE_Pt {
 list PE_Pt pts;
 
 struct _PES {
-    pt_size
+    pt_size, add_key, remove_key, add_col
 }
 
-onflag {
+proc reset_pes{
     # Edit attributes of pointengine_settings to modify pointengine behaviour
      _PES pointengine_settings = _PES{
-        pt_size: 10
+        pt_size: 10,
+        add_key: "",
+        remove_key: "",
+        add_col: "#FF0000"
      };
 }
 
 
 proc pointengine_control_tick {
-    
     local i = 1;
     local any_held = false;
+
+    if not(key_pressed(pointengine_settings.add_key)) and lf_add_btn_pressed {
+        add PE_Pt{
+            x: mouse_x(), y: mouse_y(), col: pointengine_settings.add_col
+        } to pts;
+    }
+    # lf = last frame
+    local lf_add_btn_pressed = key_pressed(pointengine_settings.add_key);
+
+
 
     repeat length pts {
         local PE_Pt p = pts[i];
@@ -36,6 +48,12 @@ proc pointengine_control_tick {
                 any_held = true;
                 pts[i].x = mouse_x();
                 pts[i].y = mouse_y();
+            }
+
+            if key_pressed(pointengine_settings.remove_key) {
+                # pts[i].x = "NaN";
+                # pts[i].y = "NaN";
+                delete pts[i];
             }
         }
 

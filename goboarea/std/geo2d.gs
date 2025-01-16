@@ -75,6 +75,10 @@ func get_ptx2(PtX2 pts, index) Pt2D {
     }
 }
 
+func ptdir(Pt2D p1, Pt2D p2) {
+    return DIR($p1.x, $p1.y, $p2.x, $p2.y);
+}
+
 
 # -- Pt2D ---
 
@@ -146,6 +150,12 @@ func circle_at (Pt2D p, r) Circle {
     };
 }
 
+func circle_pt(Circle c) Pt2D {
+    return Pt2D{
+        x: $c.x, y: $c.y
+    };
+}
+
 enum intersect_circle_error_codes {
     notouch = "notouch",
     circinside = "circinside",
@@ -194,6 +204,143 @@ func intersect_circles(Circle c1, Circle c2) PtX2 {
         y2: mdy + ox
     };
 
+}
+
+# Circle-ngon clipper based on wolther-scripts
+# Not working yet
+# Ngon passed in as list
+list Pt2D cnc_ngon;
+list Pt2D _cnc_buffer1;
+list Pt2D _cnc_buffer2;
+
+proc _cnc_inr_circle_line Circle c, Line2D l {
+    if $l.x1 == $l.x2 {
+        local m = sqrt($c.r * $c.r - ($l.x1 - $c.x) * ($l.x1 - $c.x)) * (2 * ($l.y1 > $l.y2) - 1);
+        if m != 0 {
+            local y = $c.y + m;
+            if (y - $l.y1) * (y - $l.y2) <= 0 {
+                add Pt2D{x: $l.x1, y: y} to _cnc_buffer1;
+                add Pt2D{x: $l.x1, y: y} to _cnc_buffer2;
+            }
+            y = $c.y - m;
+            if (y - $l.y1) * (y - $l.y2) <= 0 {
+                add Pt2D{x: $l.x1, y: y} to _cnc_buffer1;
+                add Pt2D{x: $l.x1, y: y} to _cnc_buffer2;
+            }
+
+        }
+    } else {
+        # si = slope-intercept
+        local m = ($l.y2 - $l.y1) / ($l.x2 - $l.x1);
+        local i = ($l.y1 - $c.y) - m * ($l.x1 - $c.x);
+
+        local a = m * m + 1;
+        local b = 2 * i * m;
+        local c = i * i - $c.r * $c.r;
+
+        local t = b * b - 4 * a * c;
+        if t >= 0 {
+            local c = SGNBOOL($l.x1 < $l.x2);
+            t = sqrt(t) * c;
+
+            local x = (b + t) / (-2 * a);
+            if (((x + $c.x) - $l.x2) * c <= 0) and ((x + $c.x) - $l.x1) * c >= 0 {
+                add Pt2D{
+                    x: x + $c.x,
+                    y: m * x + i + $c.y
+                } to _cnc_buffer1;
+
+                add Pt2D{
+                    x: x + $c.x,
+                    y: m * x + i + $c.y
+                } to _cnc_buffer2;
+            }
+
+            x = (t - b) / (2 * a);
+            if (((x + $c.x) - $l.x2) * c <= 0) and ((x + $c.x) - $l.x1) * c >= 0 {
+                add Pt2D{
+                    x: x + $c.x,
+                    y: m * x + i + $c.y
+                } to _cnc_buffer1;
+                
+                add Pt2D{
+                    x: x + $c.x,
+                    y: m * x + i + $c.y
+                } to _cnc_buffer2;
+            }
+        }
+    }
+}
+
+func _cnc_inr(dx, dy, r) {
+    return $dx * $dx + $dy * $dy < $r * $r;
+}
+
+proc circle_ngon_clip Circle c {
+    Circle cnc_circle = $c;
+
+    local i = 1;
+    repeat length cnc_ngon {
+        local d1 = (cnc_ngon[i].x - $c.x) * (cnc_ngon[i].x - $c.x) + (cnc_ngon[i].y - $c.y) * (cnc_ngon[i].y - $c.y);
+        if d1 == $c.r * $c.r {
+            circle_ngon_clip Circle{
+                x: $c.x, y: $c.y + 0.5, r: $c.r 
+            };
+            stop_this_script;
+        }
+        i++;
+    }
+
+
+    delete _cnc_buffer1;
+    delete _cnc_buffer2;
+
+    local normal_x = cnc_ngon[2].y - cnc_ngon[1].y;
+    local normal_y = cnc_ngon[1].x - cnc_ngon[2].x;
+    local normal_v = normal_x * cnc_ngon[1].x + normal_y * cnc_ngon[1].y;
+    local flip = SGNBOOL(normal_x * cnc_ngon[3].x + normal_y * cnc_ngon[3].y > normal_v);
+    _cnc_flip = flip;
+
+    i = 1;
+    local j = length cnc_ngon;
+
+    local current = _cnc_inr(cnc_ngon[j].x - $c.x, $c.y - cnc_ngon[j].y, $c.r);
+    local prev = current;
+    local first = prev;
+    _cnc_first = first;
+
+    repeat length cnc_ngon {
+        current = _cnc_inr(cnc_ngon[i].x - $c.x, $c.y - cnc_ngon[i].y, $c.r);
+        if prev {
+            add cnc_ngon[j] to _cnc_buffer1;
+        }
+        if (current == 0) or (prev == 0) {
+            _cnc_inr_circle_line $c, join_pt2Ds(cnc_ngon[j], cnc_ngon[i]);
+        }
+        
+        prev = current;
+        j = i;
+        i++;
+    }
+
+    if length _cnc_buffer1 == 0 {
+        # Circle check
+        i = 1;
+        j = length cnc_ngon;
+
+        repeat length cnc_ngon {
+            local nx = (cnc_ngon[i].y - cnc_ngon[j].y) * flip;
+            local ny = (cnc_ngon[j].x - cnc_ngon[i].x) * flip;
+            local nv = nx * cnc_ngon[i].x + $c.y * cnc_ngon[i].y;
+            if nx * $c.x + ny * $c.y < nv {
+                add Pt2D{x: "OUT POLY", y: "OUT POLY"} to _cnc_buffer1;
+                stop_this_script;
+            }
+
+            j = i;
+            i++;
+        }
+    }
 }
 
 # --- mx + c ---

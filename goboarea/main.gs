@@ -7,34 +7,60 @@ onflag {
     hide;
     delete pts;
 
-    # repeat 3 {
+    reset_pes;
+    pointengine_settings.add_key = "space";
+    pointengine_settings.remove_key = "x";
+
+    # repeat 2 + 3 {
     #     add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
     # }
-    add PE_Pt{x: 79, y: -50, col: "#FF0000"} to pts; # 0. 0
-    add PE_Pt{x: 23, y: -73, col: "#FF0000"} to pts; # 112, 119
-    add PE_Pt{x: -100, y: 0, col: "#FF0000"} to pts; # -100, 0
+
+    add PE_Pt{x: 189, y: 4, col: "#FF0000"} to pts;
+    add PE_Pt{x: -110, y: 8, col: "#FF0000"} to pts;
+    add PE_Pt{x: 87, y: -72, col: "#FF0000"} to pts;
+    add PE_Pt{x: -131, y: -52, col: "#FF0000"} to pts;
+    add PE_Pt{x: -189, y: 145, col: "#FF0000"} to pts;
+
 
     forever {
+        tick;
+        # say cnc_ngon;
+        stop_this_script;
+    }
+}
+
+proc tick{
         size_hack "Infinity";
         pointengine_control_tick;
 
         erase_all;
 
-        Line2D l1 = line_by_idx(3, 1);
-        Line2D l2 = line_by_idx(1, 2);
+        Circle c = circle_by_idx(1, 2);
+        set_pen_color RGBA(255, 255, 255, 20);
+        fill_circle c;
 
-        th = 50;
+        delete cnc_ngon;
 
-        set_pen_color "#0000FF";
-        set_pen_size th;
-        draw_line l1;
-        draw_line l2;
+        i = 3;
+        set_pen_size 1;
+        set_pen_color "#FF0000";
+        repeat length pts - 2 {
+            PE_Pt p = pts[i];
+            goto p.x, p.y;
+            pen_down;
 
-        set_pen_color "#00FF00";
-        fill_miter_arc l1, l2, th;
+            add Pt2D{
+                x: p.x, y: p.y
+            } to cnc_ngon;
 
+            i++;
+        }
+        goto pts[3].x, pts[3].y;
+        pen_up;
+
+        circle_ngon_clip c;
+        render_cnc;
         
         size_hack "Infinity";
         pointengine_render;
-    }
 }
