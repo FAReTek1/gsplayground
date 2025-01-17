@@ -26,10 +26,8 @@ proc tick{
         pointengine_control_tick;
 
         erase_all;
-
-        Circle c = circle_by_idx(1, 2);
-        draw_arc_CLE pos_from_circle(c, 90), -45, 135, 0.8, 300, 5, false;
-
+        set_pen_color "#0000FF";
+        fill_regply pos_by_idx(1, 2), 6, 2;
         
         size_hack "Infinity";
         pointengine_render;

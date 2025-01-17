@@ -115,3 +115,12 @@ func line_by_idx(i1, i2) Line2D {
         y2: pts[$i2].y
     };
 }
+
+func pos_by_idx(i1, i2) pos {
+    return pos{
+        x: pts[$i1].x,
+        y: pts[$i1].y,
+        s: DIST(pts[$i1].x, pts[$i1].y, pts[$i2].x, pts[$i2].y),
+        d: DIR(pts[$i2].x, pts[$i2].y, pts[$i1].x, pts[$i1].y)
+    };
+}
