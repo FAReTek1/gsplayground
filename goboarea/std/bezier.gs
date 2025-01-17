@@ -11,7 +11,22 @@ struct CubBezier {
     x4, y4
 }
 
+# --- Quad Bezier ---
+func bezier2(Pt2D p0, Pt2D p1, Pt2D p2, t) Pt2D {
+    return Pt2D{
+        x: (1 - $t) * ((1 - $t) * $p0.x + 2 * $t * $p1.x) + $t * $t * $p2.x,
+        y: (1 - $t) * ((1 - $t) * $p0.y + 2 * $t * $p1.y) + $t * $t * $p2.y
+    };
+}
+
 # --- Cubic Bezier ---
+func bezier3(Pt2D p0, Pt2D p1, Pt2D p2, Pt2D p3, t) Pt2D {
+    return Pt2D{
+        x: (1 - $t) * ((1 - $t) * ((1 - $t) * $p0.x + $t * $p1.x) + 3 * $t * $t * $p2.x) + $t * $t * $t * $p3.x,
+        y: (1 - $t) * ((1 - $t) * ((1 - $t) * $p0.y + $t * $p1.y) + 3 * $t * $t * $p2.y) + $t * $t * $t * $p3.y
+    };
+}
+
 proc draw_cubbez CubBezier bez, res {
     # https://scratch.mit.edu/projects/914063296/ with some changes
     local _1 = ($bez.x4 - (3 * ($bez.x3 - $bez.x2))) - $bez.x1;
@@ -30,6 +45,9 @@ proc draw_cubbez CubBezier bez, res {
     }
     pen_up;
 }
+
+# --- Infinite bezier ---
+
 
 # onflag {
 #     forever {
