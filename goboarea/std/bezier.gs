@@ -1,5 +1,5 @@
 # Module dealing with all your bezier stuffies
-# costumes "blank.svg";
+# https://pomax.github.io/bezierinfo/
 
 %include std\\geo2d.gs
 
@@ -14,16 +14,16 @@ struct CubBezier {
 # --- Quad Bezier ---
 func bezier2(Pt2D p0, Pt2D p1, Pt2D p2, t) Pt2D {
     return Pt2D{
-        x: (1 - $t) * ((1 - $t) * $p0.x + 2 * $t * $p1.x) + $t * $t * $p2.x,
-        y: (1 - $t) * ((1 - $t) * $p0.y + 2 * $t * $p1.y) + $t * $t * $p2.y
+        x: (1 - $t) * ((1 - $t) * $p0.x + 3 * $t * $p1.x) + 3 * $t * $t * $p2.x,
+        y: (1 - $t) * ((1 - $t) * $p0.y + 3 * $t * $p1.y) + 3 * $t * $t * $p2.y
     };
 }
 
 # --- Cubic Bezier ---
 func bezier3(Pt2D p0, Pt2D p1, Pt2D p2, Pt2D p3, t) Pt2D {
     return Pt2D{
-        x: (1 - $t) * ((1 - $t) * ((1 - $t) * $p0.x + $t * $p1.x) + 3 * $t * $t * $p2.x) + $t * $t * $t * $p3.x,
-        y: (1 - $t) * ((1 - $t) * ((1 - $t) * $p0.y + $t * $p1.y) + 3 * $t * $t * $p2.y) + $t * $t * $t * $p3.y
+        x: (1 - $t) * ((1 - $t) * ((1 - $t) * $p0.x + 3 * $t * $p1.x) + 3 * $t * $t * $p2.x) + $t * $t * $t * $p3.x,
+        y: (1 - $t) * ((1 - $t) * ((1 - $t) * $p0.y + 3 * $t * $p1.y) + 3 * $t * $t * $p2.y) + $t * $t * $t * $p3.y
     };
 }
 

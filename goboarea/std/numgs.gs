@@ -1,6 +1,8 @@
 # Package for dealing with random and useful maths stuff
 
+%include std\\string.gs
 %include std\\cmath.gs
+# cmath includes math
 
 %define TAU 6.283185307179586 # PI * 2
 %define GOLDEN_RATIO 1.618033988749895 # (1 + sqrt 5) / 2
@@ -197,6 +199,61 @@ proc sieve_of_atkin limit {
         }
         i++;
     }
+}
+
+# - Bases -
+# Based on https://www.rapidtables.com/convert/number/base-converter.html
+func convert_base(val, og_digits, new_digits) {
+    local og_base = length $og_digits;
+    local new_base = length $new_digits;
+    
+    # Convert to base 10
+    local b10 = 0;
+    local i = 1;
+    repeat length $val {
+        b10 += (findchar($og_digits, $val[i]) - 1) * POW(og_base, length $val - i);
+        i++;
+    }
+
+    ret = "";
+    until b10 < 1 {
+        ret = $new_digits[b10 % new_base + 1] & ret;
+        b10 /= new_base;        
+    }
+    return ret;
+}
+
+func convert_base_dp(val, og_digits, new_digits, res) {
+    local dpi = findchar($val, ".");
+
+    if dpi == 0 {
+        return convert_base($val, $og_digits, $new_digits);
+    }
+
+    local og_base = length $og_digits;
+    local new_base = length $new_digits;
+
+    local whole = slice($val, 1, dpi - 1);
+    local dec = slice($val, dpi + 1, length $val);
+
+    local b10 = 0;
+    local i = 1;
+    repeat length whole {
+        b10 += (findchar($og_digits, whole[i]) - 1) * POW(og_base, length whole - i);
+        i++;
+    }
+
+    i = 1;
+    repeat length dec{
+        b10 += (findchar($og_digits, dec[i]) - 1) * POW(og_base, -i);
+        i++;
+    }
+
+    b10 = floor(b10 * POW(new_base, $res));
+    local ret = convert_base(b10, "0123456789", $new_digits);
+
+    local dpi = length ret - $res;    
+    return slice(ret, 1, dpi) & "." & slice(ret, dpi + 1, length ret);
 }
 
 # -- demo code --

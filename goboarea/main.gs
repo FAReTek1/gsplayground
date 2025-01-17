@@ -1,6 +1,7 @@
 %include std\\pointengine.gs
 %include std\\bezier.gs
 %include std\\spritecontrol.gs
+%include std\\numgs.gs
 
 costumes "blank.svg";
 
@@ -16,10 +17,11 @@ onflag {
         add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
     }
 
+    say convert_base_dp(123.45, "0123456789", "01", 10); # mm yes 37 dont we love that number
 
-    forever {
-        tick;
-    }
+    # forever {
+    #     tick;
+    # }
 }
 
 proc tick{
