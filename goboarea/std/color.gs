@@ -1,7 +1,8 @@
 # Library by https://scratch.mit.edu/users/faretek1/ for color management and conversion in goboscript :)
 # 1/4/2025
 
-%include std\\math.gs
+%include std\\numgs.gs
+# %include std\\math.gs
 %include std\\string.gs
 
 # --- Color structs ---
@@ -43,6 +44,12 @@ func RGB_to_RGBA(cRGB c) cRGBA {
     return cRGBA{
         r: $c.r, g: $c.g, b: $c.b, a: 255
     };
+}
+
+func RGB_to_HEX(cRGB c) {
+    return zfill(convert_base($c.r, B10_DIGITS, B16_DIGITS), 2) & 
+           zfill(convert_base($c.g, B10_DIGITS, B16_DIGITS), 2) & 
+           zfill(convert_base($c.b, B10_DIGITS, B16_DIGITS), 2);
 }
 
 # Adapted from https://scratch.mit.edu/projects/623945749/ by @-Rex- on scratch

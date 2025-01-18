@@ -1,7 +1,7 @@
 %include std\\pointengine.gs
 %include std\\bezier.gs
 %include std\\spritecontrol.gs
-%include std\\numgs.gs
+%include std\\color.gs
 
 costumes "blank.svg";
 
@@ -17,7 +17,11 @@ onflag {
         add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
     }
 
-    say binomial(10, 5);
+    say RGB_to_HEX(cRGB{
+        r: 45,
+        g: 245,
+        b: 12
+    });
 
     # forever {
     #     tick;

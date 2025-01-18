@@ -202,6 +202,11 @@ proc sieve_of_atkin limit {
 }
 
 # - Bases -
+%define B10_DIGITS "0123456789"
+%define B2_DIGITS "01"
+%define B8_DIGITS "01234567"
+%define B16_DIGITS "0123456789ABCDEF"
+
 # Based on https://www.rapidtables.com/convert/number/base-converter.html
 func convert_base(val, og_digits, new_digits) {
     local og_base = length $og_digits;
@@ -255,26 +260,3 @@ func convert_base_dp(val, og_digits, new_digits, res) {
     local dpi = length ret - $res;    
     return slice(ret, 1, dpi) & "." & slice(ret, dpi + 1, length ret);
 }
-
-# -- demo code --
-
-# costumes "blank.svg";# 
-
-# onflag{
-#     erase_all;
-#     say GOLDEN_RATIO;
-#     say LOGB(2, 8);
-#     say gamma(16);# 
-
-#     i = -240;
-#     x = -240;
-#     repeat 480 {
-#         goto x, lambert_w_approx(i);# 
-
-#         pen_down;# 
-
-#         x ++;
-#         i += 480.0 / 480;
-#     }
-#     pen_up;
-# }
