@@ -21,7 +21,7 @@ func bezier2(Pt2D p0, Pt2D p1, Pt2D p2, t) Pt2D {
 
 proc draw_bezier2 Pt2D p0, Pt2D p1, Pt2D p2, res {
     local i = 0;
-    repeat $res{
+    repeat $res + 1{
         goto_pt2d bezier2($p0, $p1, $p2, i);
         pen_down;
         i += 1 / $res;
@@ -61,7 +61,7 @@ proc draw_cubbez CubBezier bez, res {
     local _6 = 3 * ($bez.y2 - $bez.y1);
 
     local t = 0;
-    repeat $res {
+    repeat $res + 1{
         goto $bez.x1 + t * (_3 + t * (_2 + t * _1)),
              $bez.y1 + t * (_6 + t * (_5 + t * _4));
         pen_down;
