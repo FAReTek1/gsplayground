@@ -17,9 +17,11 @@ onflag {
         add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
     }
 
-    forever {
-        tick;
-    }
+    say binomial(10, 5);
+
+    # forever {
+    #     tick;
+    # }
 }
 
 proc tick{
