@@ -11,6 +11,10 @@ struct cHSV {
     # Hue, saturation, value
     h, s, v
 }
+struct cHSVA {
+    # Hue, saturation, value, alpha
+    h, s, v, a
+}
 struct cRGB {
     # Red, Green, Blue
     # No alpha - would add this if there is a way to do struct value defaulting
@@ -28,13 +32,42 @@ struct cCBGBG {
 # HEX is just a string here
 
 # -- HSV ---
-func HSV_to_CBGBG (cHSV c, alpha) cCBGBG {
-    if $alpha == 0{
+func HSVA_to_CBGBG (cHSVA c) cCBGBG {
+    if $c.a == 0 {
         return cCBGBG{
             # other values are irrelevant
             g1: 100,
             g2: 100
         };
+
+    } elif $c.s == 100 and $c.v == 100 {
+        return cCBGBG{
+            c: 2 * $c.h,
+            b1: 0,
+            g1: 100 - $c.a,
+            g2: 100
+        };
+
+    } else {
+        local x = (100.0 / 3.0) * floor($c.h / (100.0 / 6.0));
+        if ($c.h * 0.06) % 2 > 1 {
+            local cCBGBG ret = cCBGBG{
+                c: (x + (100.0 / 3.0) + ($c.s / 50) * ($c.h - (x / 2 + (100.0 / 6.0))))
+            };
+            
+        } else {
+            local cCBGBG ret = cCBGBG{
+                c: x + ($c.s / 50) * ($c.h - x / 2)
+            };
+        }
+
+        ret.b1 = 100 - $c.s;
+        x = 1 - (($c.a * (100 - $c.v)) / 10000);
+        ret.g1 = (100 - $c.a) / x;
+        ret.b2 = -100;
+        ret.g2 = 100 * x;
+
+        return ret;
     }
     
 }
@@ -52,6 +85,13 @@ func RGB_to_HEX(cRGB c) {
            zfill(convert_base($c.b, B10_DIGITS, B16_DIGITS), 2);
 }
 
+# --- RGBA ---
+func RGBA_to_HEX(cRGBA c) {
+    return zfill(convert_base($c.r, B10_DIGITS, B16_DIGITS), 2) & 
+           zfill(convert_base($c.g, B10_DIGITS, B16_DIGITS), 2) & 
+           zfill(convert_base($c.b, B10_DIGITS, B16_DIGITS), 2) & 
+           zfill(convert_base($c.a, B10_DIGITS, B16_DIGITS), 2);
+}
 # Adapted from https://scratch.mit.edu/projects/623945749/ by @-Rex- on scratch
 func RGBA_to_CBGBG(cRGBA c) cCBGBG {
     local a = $c.a / 255;

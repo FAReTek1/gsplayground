@@ -2,8 +2,9 @@
 %include std\\bezier.gs
 %include std\\spritecontrol.gs
 %include std\\color.gs
+%include std\\lazycode.gs
 
-costumes "blank.svg";
+costumes "blank.svg", "circle.svg";
 
 onflag {
     hide;
@@ -17,39 +18,31 @@ onflag {
         add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
     }
 
-    say RGB_to_HEX(cRGB{
-        r: 45,
-        g: 245,
-        b: 12
-    });
-
-    # forever {
-    #     tick;
-    # }
+    forever {
+        tick;
+        WAIT_FOR_KPRESS_RELEASE("space");
+    }
 }
 
 proc tick{
-        size_hack "Infinity";
-        pointengine_control_tick;
-
         erase_all;
-        set_pen_color "#0000FF";
 
-        delete de_casteljau_pts;
-        i = 1;
-        repeat length pts {
-            add pt2d_by_idx(i) to de_casteljau_pts;
-            i++;
-        }
-        
-        t = 0;
-        repeat 100 {
-            goto_pt2d get_casteljau(t);
-            pen_down;
-            t += 0.01;
-        }
-        pen_up;
-        
         size_hack "Infinity";
-        pointengine_render;
+
+        cHSVA hsv = cHSVA{
+            h: random(0, 100),
+            s: random(0, 100),
+            v: random(0, 100),
+            a: random(0, 100)
+        };
+        cCBGBG c = HSVA_to_CBGBG(hsv);
+
+        switch_costume "circle";
+        position -100, 0, 200, 90;
+        CBGBG_stamp c;
+
+        position 100, 0, 200, 90;
+        set_pen_size 200;
+        pen_down;
+        pen_up;
 }
