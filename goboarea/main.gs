@@ -29,20 +29,21 @@ proc tick{
 
         size_hack "Infinity";
 
-        cHSVA hsv = cHSVA{
-            h: random(0, 100),
-            s: random(0, 100),
-            v: random(0, 100),
-            a: random(0, 100)
+        cRGBA rgb = cRGBA{
+            r: random(0, 255),
+            g: random(0, 255),
+            b: random(0, 255),
+            a: random(0, 255)
         };
-        cCBGBG c = HSVA_to_CBGBG(hsv);
+
+        cHSVA c = RGBA_to_HSVA(rgb);
 
         switch_costume "circle";
         position -100, 0, 200, 90;
-        CBGBG_stamp c;
+        set_pen_size 200;
+        pen_down; pen_up;
 
         position 100, 0, 200, 90;
-        set_pen_size 200;
-        pen_down;
-        pen_up;
+        set_pen_color_RGBA rgb;
+        pen_down; pen_up;
 }

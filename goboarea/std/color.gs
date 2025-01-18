@@ -72,6 +72,71 @@ func HSVA_to_CBGBG (cHSVA c) cCBGBG {
     
 }
 
+# https://www.rapidtables.com/convert/color/hsv-to-rgb.html
+func HSVA_to_RGBA (cHSVA c) cRGBA {
+    local h = ($c.h * 3.6) % 360;
+    local s = $c.s * 0.01;
+    local v = $c.v * 0.01;
+    local a = $c.a * 2.55;
+
+    local C = v * s;
+    local X = C * (1 - abs(((h  / 60) % 2) - 1));
+    local m = v - C;
+
+    if h < 180 {
+        if h < 120 {
+            if h < 60 {
+                return cRGBA{
+                    r: (C + m) * 255,
+                    g: (X + m) * 255,
+                    b: m * 255,
+                    a: a
+                };
+            } else {
+                return cRGBA{
+                    r: (X + m) * 255,
+                    g: (C + m) * 255,
+                    b: m * 255,
+                    a: a
+                };
+            }
+        } else {
+            return cRGBA{
+                r: m * 255,
+                g: (C + m) * 255,
+                b: (X + m) * 255,
+                a: a
+            };
+        }
+    } else {
+        if h < 300 {
+            if h < 240 {
+                return cRGBA{
+                    r: m * 255,
+                    g: (X + m) * 255,
+                    b: (C + m) * 255,
+                    a: a
+                };
+            } else {
+                return cRGBA{
+                    r: (X + m) * 255,
+                    g: m * 255,
+                    b: (C + m) * 255,
+                    a: a
+                };
+            }
+        } else {
+            return cRGBA{
+                r: (C + m) * 255,
+                g: m * 255,
+                b: (X + m) * 255,
+                a: a
+            };
+        }
+
+    }
+}
+
 # --- RGB ---
 func RGB_to_RGBA(cRGB c) cRGBA {
     return cRGBA{
@@ -84,6 +149,7 @@ func RGB_to_HEX(cRGB c) {
            zfill(convert_base($c.g, B10_DIGITS, B16_DIGITS), 2) & 
            zfill(convert_base($c.b, B10_DIGITS, B16_DIGITS), 2);
 }
+
 
 # --- RGBA ---
 func RGBA_to_HEX(cRGBA c) {
@@ -168,6 +234,58 @@ func RGBA_to_CBGBG(cRGBA c) cCBGBG {
     }
 
     return ret;
+}
+
+proc set_pen_color_RGBA cRGBA c {
+    set_pen_color RGBA($c.r, $c.g, $c.b, $c.a);
+}
+
+# https://www.rapidtables.com/convert/color/rgb-to-hsv.html
+func RGBA_to_HSVA(cRGBA c) cHSVA {
+    local r = $c.r / 255;
+    local g = $c.g / 255;
+    local b = $c.b / 255;
+
+    if r > g and r > b {
+        local cmax = r;
+    } elif g > r and g > b {
+        local cmax = g;
+    } else {
+        local cmax = b;
+    }
+
+    if r < g and r < b {
+        local cmin = r;
+    } elif g < r and g < b {
+        local cmin = g;
+    } else {
+        local cmin = b;
+    }
+
+    local delta = cmax - cmin;
+
+    if delta == 0 {
+        local cHSVA ret = cHSVA{
+            h: 0
+        };
+    } elif cmax == r {
+        local cHSVA ret = cHSVA{
+            h: (100.0 / 6.0) * (((g - b) / delta) % 6)
+        };
+    } elif cmax == g {
+        local cHSVA ret = cHSVA{
+            h: (100.0 / 6.0) * ((b - r) / delta + 2)
+        };
+    } else {
+        local cHSVA ret = cHSVA{
+            h: (100.0 / 6.0) * ((r - g) / delta + 4)
+        };
+    }
+    ret.s = (delta / cmax) * 100;
+    ret.v = cmax * 100;
+    ret.a = $c.a / 2.55;
+
+    return ret;    
 }
 
 # --- HEX ---
