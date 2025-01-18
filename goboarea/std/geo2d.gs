@@ -210,7 +210,6 @@ func intersect_circles(Circle c1, Circle c2) PtX2 {
         x2: mdx - oy,
         y2: mdy + ox
     };
-
 }
 
 # Circle-ngon clipper based on wolther-scripts's clipper
@@ -296,7 +295,6 @@ proc circle_ngon_clip Circle c {
         }
         i++;
     }
-
 
     delete _cnc_buffer1;
     delete _cnc_buffer2;

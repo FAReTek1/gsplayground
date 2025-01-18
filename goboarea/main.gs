@@ -2,7 +2,7 @@
 %include std\\bezier.gs
 %include std\\spritecontrol.gs
 %include std\\color.gs
-%include std\\lazycode.gs
+%include std\\shapefill.gs
 
 costumes "blank.svg", "circle.svg";
 
@@ -20,30 +20,24 @@ onflag {
 
     forever {
         tick;
-        WAIT_FOR_KPRESS_RELEASE("space");
     }
 }
 
+
 proc tick{
         erase_all;
-
+        pointengine_control_tick;
         size_hack "Infinity";
 
-        cRGBA rgb = cRGBA{
-            r: random(0, 255),
-            g: random(0, 255),
-            b: random(0, 255),
-            a: random(0, 255)
-        };
+        set_pen_color "#0000FF";
+        fill_crescent circle_by_idx(1, 2), circle_by_idx(3, 4), 30;
 
-        cHSVA c = RGBA_to_HSVA(rgb);
+        set_pen_size 1;
+        # set_pen_color "#00FF00";
+        # draw_circle circle_by_idx(1, 2), 30;
+        # draw_circle circle_by_idx(3, 4), 30;
+        
+        size_hack "Infinity";
+        pointengine_render;
 
-        switch_costume "circle";
-        position -100, 0, 200, 90;
-        set_pen_size 200;
-        pen_down; pen_up;
-
-        position 100, 0, 200, 90;
-        set_pen_color_RGBA rgb;
-        pen_down; pen_up;
 }
