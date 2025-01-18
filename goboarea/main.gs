@@ -29,14 +29,20 @@ proc tick{
         erase_all;
         set_pen_color "#0000FF";
 
-        delete quad_bezier_polygon;
+        delete de_casteljau_pts;
         i = 1;
         repeat length pts {
-            add pt2d_by_idx(i) to quad_bezier_polygon;
+            add pt2d_by_idx(i) to de_casteljau_pts;
             i++;
         }
         
-        draw_bezier_poly 0.5, 100;
+        t = 0;
+        repeat 100 {
+            goto_pt2d get_casteljau(t);
+            pen_down;
+            t += 0.01;
+        }
+        pen_up;
         
         size_hack "Infinity";
         pointengine_render;

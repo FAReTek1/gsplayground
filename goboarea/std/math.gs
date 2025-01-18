@@ -16,6 +16,9 @@
 # Parse a binary value.
 %define BIN(VALUE) (("0b"&(VALUE))+0)
 
+# Parse an octal value.
+%define OCT(VALUE) (("0o"&(VALUE))+0)
+
 # Return `BASE` raised to the power of `EXP`.
 %define POW(BASE,EXP) antiln(ln(BASE)*(EXP))
 

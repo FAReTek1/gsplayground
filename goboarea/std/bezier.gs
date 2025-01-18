@@ -51,14 +51,14 @@ func bezier3(Pt2D p0, Pt2D p1, Pt2D p2, Pt2D p3, t) Pt2D {
     };
 }
 
-proc draw_cubbez CubBezier bez, res {
+proc draw_cubbez Pt2D p1, Pt2D p2, Pt2D p3, Pt2D p4, res {
     # https://scratch.mit.edu/projects/914063296/ with some changes
-    local _1 = ($bez.x4 - (3 * ($bez.x3 - $bez.x2))) - $bez.x1;
-    local _2 = 3 * ($bez.x1 + ($bez.x3 - $bez.x2 * 2));
-    local _3 = 3 * ($bez.x2 - $bez.x1);
-    local _4 = ($bez.y4 - (3 * ($bez.y3 - $bez.y2))) - $bez.y1;
-    local _5 = 3 * ($bez.y1 + ($bez.y3 - $bez.y2 * 2));
-    local _6 = 3 * ($bez.y2 - $bez.y1);
+    local _1 = ($p4.x - (3 * ($p3.x - $p2.x))) - $p1.x;
+    local _2 = 3 * ($p1.x + ($p3.x - $p2.x * 2));
+    local _3 = 3 * ($p2.x - $p1.x);
+    local _4 = ($p4.y - (3 * ($p3.y - $p2.y))) - $p1.y;
+    local _5 = 3 * ($p1.y + ($p3.y - $p2.y * 2));
+    local _6 = 3 * ($p2.y - $p1.y);
 
     local t = 0;
     repeat $res + 1{
@@ -71,16 +71,26 @@ proc draw_cubbez CubBezier bez, res {
 }
 
 # --- Infinite bezier ---
+# De Casteljau's algorithm
+list Pt2D de_casteljau_pts;
+list Pt2D _get_casteljau;
+func get_casteljau(t) Pt2D {
+    delete _get_casteljau;
+    local i = 1;
+    repeat length de_casteljau_pts {
+        add de_casteljau_pts[i] to _get_casteljau;
+        i++;
+    }
 
+    local l = "";
+    until l == 2 {
+        l = length _get_casteljau;
 
-# onflag {
-#     forever {
-#         erase_all;
-#         draw_cubbez CubBezier{
-#             x1: 0, y1: 0,
-#             x2: mouse_x(), y2: mouse_y(),
-#             x3: 100, y3: 0,
-#             x4: 0, y4: 100
-#         }, 20;
-#     }
-# }
+        repeat length _get_casteljau - 1 {
+            add lerp_pt2ds(_get_casteljau[1], _get_casteljau[2], $t) to _get_casteljau;
+            delete _get_casteljau[1];
+        }
+        delete _get_casteljau[1];
+    }
+    return _get_casteljau[1];
+}
