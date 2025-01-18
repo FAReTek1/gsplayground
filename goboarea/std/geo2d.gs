@@ -100,6 +100,13 @@ proc goto_pt2d Pt2D p {
     goto $p.x, $p.y;
 }
 
+func lerp_pt2ds(Pt2D a, Pt2D b, t) Pt2D{
+    return Pt2D{
+        x: $a.x + ($b.x - $a.x) * $t,
+        y: $a.y + ($b.y - $a.y) * $t
+    };
+}
+
 # --- Line2D ---
 func side_of_line(Pt2D p, Line l) {
     # Return -1, 0, or 1 depending on the side of the line that point p is on. 0 means the point is on the line.
