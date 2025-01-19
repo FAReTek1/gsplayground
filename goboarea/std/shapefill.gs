@@ -279,6 +279,74 @@ proc clip_circles Circle c1, Circle c2 {
     }
 }
 
+# -- Dynamic width line (defined by 2 circles) --
+proc _shapefill_inner_fill_dw_line_fast Circle c1, Circle c2, dx, dy{
+    # Fast line fill, but not 100% accurate
+    local dst = sqrt($dx * $dx + $dy * $dy);
+
+    local vx = $dy / -dst;
+    local vy = $dx / dst;
+
+    local th = $c1.r / 4;
+    set_pen_size $c1.r;
+    goto $c1.x, $c1.y;
+    pen_down;
+
+    local x = $c1.x;
+    local y = $c1.y;
+    local done = false;
+
+    until done {
+        local m = (2 * th - $c1.r) / ($c2.r - $c1.r);
+
+        if m > 1 {
+            done = true;
+            th = th * 2 - $c2.r * 0.5;
+            
+            set_pen_size $c2.r;
+
+            goto x + th * vx, y + th * vy;
+            goto $c2.x, $c2.y;
+            goto x - th * vx, y - th * vy;
+
+            pen_up;
+        } else {
+            local ox = x;
+            local oy = y;
+
+            x = $c1.x + m * $dx;
+            y = $c1.y + m * $dy;
+
+            set_pen_size 2 * th;
+            goto ox + th * vx, oy + th * vy;
+            goto x, y;
+            goto ox - th * vx, oy - th * vy;
+
+            th *= 0.5;
+        }
+    }
+
+}
+
+proc fill_dw_line_fast Circle c1, Circle c2 {
+    if $c1.r == $c2.r {
+        set_pen_size $c1.r * 2;
+        goto $c1.x, $c1.y;
+        pen_down;
+        goto $c2.x, $c2.y;
+        pen_up;
+
+    } elif $c1.r > $c2.r {
+        _shapefill_inner_fill_dw_line_fast Circle{x: $c1.x, y: $c1.y, r: $c1.r * 2},
+                                           Circle{x: $c2.x, y: $c2.y, r: $c2.r * 2},
+                                           $c2.x - $c1.x, $c2.y - $c1.y;
+    } else {
+        _shapefill_inner_fill_dw_line_fast Circle{x: $c2.x, y: $c2.y, r: $c2.r * 2},
+                                           Circle{x: $c1.x, y: $c1.y, r: $c1.r * 2},
+                                           $c1.x - $c2.x, $c1.y - $c2.y;
+    }
+}
+
 # -- crescent fill/draw by @faretek1 on scratch --
 # There is potentially a more optimal algo for this
 # A crescent is defined by a main circle and a second circle cut out of it.
@@ -310,7 +378,6 @@ proc draw_crescent Circle c1, Circle c2, res {
         } else {
             draw_arc_edge pos_from_circle($c1, 180 + d1), d2 - d1, $res;
         }
-
     }
 }
 
@@ -578,6 +645,7 @@ proc draw_arc_edge pos p, ext, res {
 
     pen_up;
 }
+
 # -- 'Cone'/pen-cap filler by @faretek1 and @wolther on scratch --
 costumes "std\\cone\\*.svg";
 
@@ -608,7 +676,7 @@ proc fill_cone pos p, ext {
 }
 
 # -- Arrow filler for intros adapted from https://scratch.mit.edu/projects/1046239626/ --
-# Costumes by @infinitto on scratch: https://scratch.mit.edu/projects/1046239626/
+# Costumes by @infinitto on scratch
 # Uses a specific size that cannot be changed here. If you want dynamic width, make one using 2 quad fills
 costumes "std\\aw\\*.svg";
 
