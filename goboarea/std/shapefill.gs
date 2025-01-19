@@ -553,6 +553,55 @@ proc fill_tri x1, y1, x2, y2, x3, y3 {
     pen_up;
 }
 
+# -- Azex 3D adapted for quad by @ggenije(2) on scratch
+# https://scratch.mit.edu/projects/882039002
+proc fill_quad Pt2D p0, Pt2D p1, Pt2D p2, Pt2D p3 {
+    _shapefill_quad_fill_B = sqrt(($p2.x - $p0.x) * ($p2.x - $p0.x) + ($p2.y - $p0.y) * ($p2.y - $p0.y));
+    _shapefill_quad_fill_A = sqrt(($p1.x - $p2.x) * ($p1.x - $p2.x) + ($p1.y - $p2.y) * ($p1.y - $p2.y));
+    _shapefill_quad_fill_C = sqrt(($p1.x - $p0.x) * ($p1.x - $p0.x) + ($p1.y - $p0.y) * ($p1.y - $p0.y));
+    _shapefill_quad_fill_P1 = _shapefill_quad_fill_A + (_shapefill_quad_fill_B + _shapefill_quad_fill_C);
+    goto (_shapefill_quad_fill_A * $p0.x + _shapefill_quad_fill_B * $p1.x + _shapefill_quad_fill_C * $p2.x) / _shapefill_quad_fill_P1, (_shapefill_quad_fill_A * $p0.y + _shapefill_quad_fill_B * $p1.y + _shapefill_quad_fill_C * $p2.y) / _shapefill_quad_fill_P1;
+    quad_intern x_position() - $p0.x, y_position() - $p0.y, x_position() - $p1.x, y_position() - $p1.y, x_position() - $p2.x, y_position() - $p2.y, sqrt((_shapefill_quad_fill_P1 - _shapefill_quad_fill_A * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_B * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_C * 2) / _shapefill_quad_fill_P1), $p0.x, $p0.y, $p1.x, $p1.y, $p2.x, $p2.y;
+    _shapefill_quad_fill_A = sqrt(($p3.x - $p2.x) * ($p3.x - $p2.x) + ($p3.y - $p2.y) * ($p3.y - $p2.y));
+    _shapefill_quad_fill_C = sqrt(($p0.x - $p3.x) * ($p0.x - $p3.x) + ($p0.y - $p3.y) * ($p0.y - $p3.y));
+    _shapefill_quad_fill_P1 = _shapefill_quad_fill_A + (_shapefill_quad_fill_B + _shapefill_quad_fill_C);
+    goto (_shapefill_quad_fill_A * $p0.x + _shapefill_quad_fill_B * $p3.x + _shapefill_quad_fill_C * $p2.x) / _shapefill_quad_fill_P1, (_shapefill_quad_fill_A * $p0.y + _shapefill_quad_fill_B * $p3.y + _shapefill_quad_fill_C * $p2.y) / _shapefill_quad_fill_P1;
+    quad_intern x_position() - $p0.x, y_position() - $p0.y, x_position() - $p3.x, y_position() - $p3.y, x_position() - $p2.x, y_position() - $p2.y, sqrt((_shapefill_quad_fill_P1 - _shapefill_quad_fill_A * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_B * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_C * 2) / _shapefill_quad_fill_P1), $p0.x, $p0.y, $p3.x, $p3.y, $p2.x, $p2.y;
+    set_pen_size 2;
+    goto $p0.x, $p0.y;
+    goto $p1.x, $p1.y;
+    goto $p2.x, $p2.y;
+    goto $p3.x, $p3.y;
+    goto $p0.x, $p0.y;
+    goto $p2.x, $p2.y;
+    pen_up;
+}
+
+proc quad_intern ina1, inb1, inc, ind, ine1, inf1, inr1, a, b, c, d, e, f {
+    if _shapefill_quad_fill_A < _shapefill_quad_fill_B and _shapefill_quad_fill_A < _shapefill_quad_fill_C {
+        _shapefill_quad_fill_A = 0.5 - $inr1 / (4 * sqrt($ina1 * $ina1 + $inb1 * $inb1));
+    }
+    elif _shapefill_quad_fill_B < _shapefill_quad_fill_C {
+        _shapefill_quad_fill_A = 0.5 - $inr1 / (4 * sqrt($inc * $inc + $ind * $ind));
+    }
+    else {
+        _shapefill_quad_fill_A = 0.5 - $inr1 / (4 * sqrt($ine1 * $ine1 + $inf1 * $inf1));
+    }
+    set_pen_size $inr1;
+    pen_down;
+    _shapefill_quad_fill_C = _shapefill_quad_fill_A;
+    repeat -(ln($inr1) / ln(_shapefill_quad_fill_A)) {
+        set_pen_size _shapefill_quad_fill_A * $inr1;
+        goto $a + _shapefill_quad_fill_A * $ina1, $b + _shapefill_quad_fill_A * $inb1;
+        goto $c + _shapefill_quad_fill_A * $inc, $d + _shapefill_quad_fill_A * $ind;
+        goto $e + _shapefill_quad_fill_A * $ine1, $f + _shapefill_quad_fill_A * $inf1;
+        goto $a + _shapefill_quad_fill_A * $ina1, $b + _shapefill_quad_fill_A * $inb1;
+        _shapefill_quad_fill_A *= _shapefill_quad_fill_C;
+    }
+}
+
+
+
 # -- segment fill by @faretek1 on scratch --
 costumes "std\\segment\\*.svg";
 
@@ -680,10 +729,10 @@ proc fill_cone pos p, ext {
 # Uses a specific size that cannot be changed here. If you want dynamic width, make one using 2 quad fills
 costumes "std\\aw\\*.svg";
 
-proc fill_AW pos pos, hole {
+proc fill_shapefill_quad_fill_AW pos pos, hole {
     # Note: this filler is a bit stuttery and doesn't work sometimes
     if $hole < 0 {
-        fill_AW $pos, 0;
+        fill_shapefill_quad_fill_AW $pos, 0;
 
     } elif $hole < 1 {
         goto_pos $pos;
@@ -717,18 +766,18 @@ proc fill_AW pos pos, hole {
     }
 }
 
-proc draw_AW pos pos, hole {
+proc draw_shapefill_quad_fill_AW pos pos, hole {
     if $hole < 0 {
-        _inner_AW_draw $pos, 0, cos($pos.d), sin($pos.d), 
+        _inner_shapefill_quad_fill_AW_draw $pos, 0, cos($pos.d), sin($pos.d), 
                        0.16 * $pos.s, 0.9 * $pos.s, 0;
 
     } elif $hole < 1 {
-        _inner_AW_draw $pos, $pos.s * $hole, cos($pos.d), sin($pos.d), 
+        _inner_shapefill_quad_fill_AW_draw $pos, $pos.s * $hole, cos($pos.d), sin($pos.d), 
                        0.16 * $pos.s, 0.9 * $pos.s, 0.9 * $pos.s * $hole;
     }
 }
 
-proc _inner_AW_draw pos pos, s2, cosd, sind, rx, ry1, ry2 {
+proc _inner_shapefill_quad_fill_AW_draw pos pos, s2, cosd, sind, rx, ry1, ry2 {
     goto $pos.x + $ry1 * $sind + $rx * $cosd,
          $pos.y + $ry1 * $cosd - $rx * $sind;
 
@@ -844,7 +893,7 @@ proc fill_arc_ending_at pos p, ext, hole, center_rot, overall_size {
     }, $ext, $hole;
 }
 
-proc draw_arc_CLE pos p, arcd, ext, hole, sz, ct, is_cw {
+proc draw_arc_shapefill_quad_fill_CLE pos p, arcd, ext, hole, sz, ct, is_cw {
     # pos, arc dir, extent, thickness, arc size, arc count, clockwise or not
     local d = $p.d;
     repeat $ct {
