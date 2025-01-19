@@ -212,6 +212,14 @@ func intersect_circles(Circle c1, Circle c2) PtX2 {
     };
 }
 
+func get_tangent_points_of_circle_to_point(Circle c, Pt2D p) PtX2 {
+    return intersect_circles($c, Circle{
+        x: ($c.x + $p.x) / 2,
+        y: ($c.y + $p.y) / 2,
+        r: DIST($c.x, $c.y, $p.x, $p.y) / 2
+    });
+}
+
 # Circle-ngon clipper based on wolther-scripts's clipper
 # Ngon passed in as list
 list Pt2D cnc_ngon;

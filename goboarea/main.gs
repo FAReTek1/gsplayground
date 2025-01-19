@@ -30,7 +30,7 @@ proc tick{
         size_hack "Infinity";
 
         set_pen_color "#0000FF";
-        fill_quad pt2d_by_idx(1), pt2d_by_idx(2), pt2d_by_idx(3), pt2d_by_idx(4);
+        fill_dw_line_perfect circle_by_idx(1, 2), circle_by_idx(3, 4);
         
         size_hack "Infinity";
         pointengine_render;

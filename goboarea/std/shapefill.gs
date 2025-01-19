@@ -280,6 +280,8 @@ proc clip_circles Circle c1, Circle c2 {
 }
 
 # -- Dynamic width line (defined by 2 circles) --
+# Inspired by @chooper100 but no code adaption
+# by faretek1
 proc _shapefill_inner_fill_dw_line_fast Circle c1, Circle c2, dx, dy{
     # Fast line fill, but not 100% accurate
     local dst = sqrt($dx * $dx + $dy * $dy);
@@ -344,6 +346,73 @@ proc fill_dw_line_fast Circle c1, Circle c2 {
         _shapefill_inner_fill_dw_line_fast Circle{x: $c2.x, y: $c2.y, r: $c2.r * 2},
                                            Circle{x: $c1.x, y: $c1.y, r: $c1.r * 2},
                                            $c1.x - $c2.x, $c1.y - $c2.y;
+    }
+}
+
+# Uses quad fill and tangent calcuation
+# by faretek1
+proc fill_dw_line_perfect Circle c1, Circle c2 {
+    # Fill a dw line using a quad fill
+    if $c1.r == $c2.r {
+        goto $c1.x, $c1.y;
+        set_pen_size $c1.r * 2;
+        pen_down;
+        goto $c2.x, $c2.y;
+        pen_up;
+
+    } elif $c2.r > $c1.r {
+        fill_dw_line_perfect $c2, $c1;
+
+    } else {
+        local ir = ($c1.r - $c2.r);
+        local PtX2 ps = get_tangent_points_of_circle_to_point(
+            Circle{
+                x: 0, 
+                y: 0, 
+                r: ir
+            }, Pt2D{
+                x: $c2.x - $c1.x,
+                y: $c2.y - $c1.y
+            });
+        
+        if ps.x1 == intersect_circle_error_codes.circinside {
+            goto $c1.x, $c1.y;
+            set_pen_size $c1.r * 2;
+            pen_down;
+            pen_up;
+
+        } elif ps.x1 != intersect_circle_error_codes.notouch {
+            ps.x1 /= ir;
+            ps.y1 /= ir;
+            ps.x2 /= ir;
+            ps.y2 /= ir;
+
+            goto $c1.x, $c1.y;
+            set_pen_size $c1.r * 2;
+            PEN_DU;
+
+            goto $c2.x, $c2.y;
+            set_pen_size $c2.r * 2;
+            PEN_DU;
+
+            fill_quad 
+                Pt2D {
+                    x: $c1.x + ($c1.r - 0.5) * ps.x1,
+                    y: $c1.y + ($c1.r - 0.5) * ps.y1
+                },
+                Pt2D {
+                    x: $c2.x + ($c2.r - 0.5) * ps.x1,
+                    y: $c2.y + ($c2.r - 0.5) * ps.y1
+                },
+                Pt2D {
+                    x: $c2.x + ($c2.r - 0.5) * ps.x2,
+                    y: $c2.y + ($c2.r - 0.5) * ps.y2
+                },
+                Pt2D {
+                    x: $c1.x + ($c1.r - 0.5) * ps.x2,
+                    y: $c1.y + ($c1.r - 0.5) * ps.y2
+                };
+        }
     }
 }
 
@@ -556,17 +625,18 @@ proc fill_tri x1, y1, x2, y2, x3, y3 {
 # -- Azex 3D adapted for quad by @ggenije(2) on scratch
 # https://scratch.mit.edu/projects/882039002
 proc fill_quad Pt2D p0, Pt2D p1, Pt2D p2, Pt2D p3 {
+    # Since you can't have local vars across functions, I'm just using these very long-named global ones
     _shapefill_quad_fill_B = sqrt(($p2.x - $p0.x) * ($p2.x - $p0.x) + ($p2.y - $p0.y) * ($p2.y - $p0.y));
     _shapefill_quad_fill_A = sqrt(($p1.x - $p2.x) * ($p1.x - $p2.x) + ($p1.y - $p2.y) * ($p1.y - $p2.y));
     _shapefill_quad_fill_C = sqrt(($p1.x - $p0.x) * ($p1.x - $p0.x) + ($p1.y - $p0.y) * ($p1.y - $p0.y));
     _shapefill_quad_fill_P1 = _shapefill_quad_fill_A + (_shapefill_quad_fill_B + _shapefill_quad_fill_C);
     goto (_shapefill_quad_fill_A * $p0.x + _shapefill_quad_fill_B * $p1.x + _shapefill_quad_fill_C * $p2.x) / _shapefill_quad_fill_P1, (_shapefill_quad_fill_A * $p0.y + _shapefill_quad_fill_B * $p1.y + _shapefill_quad_fill_C * $p2.y) / _shapefill_quad_fill_P1;
-    quad_intern x_position() - $p0.x, y_position() - $p0.y, x_position() - $p1.x, y_position() - $p1.y, x_position() - $p2.x, y_position() - $p2.y, sqrt((_shapefill_quad_fill_P1 - _shapefill_quad_fill_A * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_B * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_C * 2) / _shapefill_quad_fill_P1), $p0.x, $p0.y, $p1.x, $p1.y, $p2.x, $p2.y;
+    _shapefill_quad_fill_intern x_position() - $p0.x, y_position() - $p0.y, x_position() - $p1.x, y_position() - $p1.y, x_position() - $p2.x, y_position() - $p2.y, sqrt((_shapefill_quad_fill_P1 - _shapefill_quad_fill_A * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_B * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_C * 2) / _shapefill_quad_fill_P1), $p0.x, $p0.y, $p1.x, $p1.y, $p2.x, $p2.y;
     _shapefill_quad_fill_A = sqrt(($p3.x - $p2.x) * ($p3.x - $p2.x) + ($p3.y - $p2.y) * ($p3.y - $p2.y));
     _shapefill_quad_fill_C = sqrt(($p0.x - $p3.x) * ($p0.x - $p3.x) + ($p0.y - $p3.y) * ($p0.y - $p3.y));
     _shapefill_quad_fill_P1 = _shapefill_quad_fill_A + (_shapefill_quad_fill_B + _shapefill_quad_fill_C);
     goto (_shapefill_quad_fill_A * $p0.x + _shapefill_quad_fill_B * $p3.x + _shapefill_quad_fill_C * $p2.x) / _shapefill_quad_fill_P1, (_shapefill_quad_fill_A * $p0.y + _shapefill_quad_fill_B * $p3.y + _shapefill_quad_fill_C * $p2.y) / _shapefill_quad_fill_P1;
-    quad_intern x_position() - $p0.x, y_position() - $p0.y, x_position() - $p3.x, y_position() - $p3.y, x_position() - $p2.x, y_position() - $p2.y, sqrt((_shapefill_quad_fill_P1 - _shapefill_quad_fill_A * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_B * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_C * 2) / _shapefill_quad_fill_P1), $p0.x, $p0.y, $p3.x, $p3.y, $p2.x, $p2.y;
+    _shapefill_quad_fill_intern x_position() - $p0.x, y_position() - $p0.y, x_position() - $p3.x, y_position() - $p3.y, x_position() - $p2.x, y_position() - $p2.y, sqrt((_shapefill_quad_fill_P1 - _shapefill_quad_fill_A * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_B * 2) * (_shapefill_quad_fill_P1 - _shapefill_quad_fill_C * 2) / _shapefill_quad_fill_P1), $p0.x, $p0.y, $p3.x, $p3.y, $p2.x, $p2.y;
     set_pen_size 2;
     goto $p0.x, $p0.y;
     goto $p1.x, $p1.y;
@@ -577,7 +647,7 @@ proc fill_quad Pt2D p0, Pt2D p1, Pt2D p2, Pt2D p3 {
     pen_up;
 }
 
-proc quad_intern ina1, inb1, inc, ind, ine1, inf1, inr1, a, b, c, d, e, f {
+proc _shapefill_quad_fill_intern ina1, inb1, inc, ind, ine1, inf1, inr1, a, b, c, d, e, f {
     if _shapefill_quad_fill_A < _shapefill_quad_fill_B and _shapefill_quad_fill_A < _shapefill_quad_fill_C {
         _shapefill_quad_fill_A = 0.5 - $inr1 / (4 * sqrt($ina1 * $ina1 + $inb1 * $inb1));
     }
@@ -599,8 +669,6 @@ proc quad_intern ina1, inb1, inc, ind, ine1, inf1, inr1, a, b, c, d, e, f {
         _shapefill_quad_fill_A *= _shapefill_quad_fill_C;
     }
 }
-
-
 
 # -- segment fill by @faretek1 on scratch --
 costumes "std\\segment\\*.svg";
