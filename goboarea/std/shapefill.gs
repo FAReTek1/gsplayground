@@ -573,6 +573,52 @@ proc fill_capped_line x1, y1, x2, y2, th, trans {
     }
 }
 
+# STLF by sockeye-d and faretek1 (not krypto)
+# adapted from https://scratch.mit.edu/projects/1054272541/
+# Costumes by sockeye-d
+costumes "std\\stlf\\*.svg";
+
+proc STLF Pt2D p1, Pt2D p2, th, style, cap {
+    local dist = DIST($p1.x, $p1.y, $p2.x, $p2.y);
+    if dist > $th {
+        goto_pos_stretch pos{
+            x: ($p1.x + $p2.x) / 2,
+            y: ($p1.y + $p2.y) / 2,
+            s: 100,
+            d: DIR($p2.x, $p2.y, $p1.x, $p1.y)
+        }, Stretch {
+            w: dist - $th,
+            h: $th
+        };
+        switch_costume $style;
+        stamp;
+
+        set_fisheye_effect 0;
+        size_hack $th;
+        switch_costume $cap;
+        pos_hack $p1.x + 0.5 * $th * sin(direction()),
+                 $p1.y + 0.5 * $th * cos(direction());
+        stamp;
+
+        pos_hack $p2.x - 0.5 * $th * sin(direction()),
+                 $p2.y - 0.5 * $th * cos(direction());
+        stamp;
+
+    } else {
+        goto_pos_stretch pos{
+            x: ($p1.x + $p2.x) / 2,
+            y: ($p1.y + $p2.y) / 2,
+            s: 100,
+            d: DIR($p2.x, $p2.y, $p1.x, $p1.y)
+        }, Stretch {
+            w: dist,
+            h: $th
+        };
+        switch_costume $cap;
+        stamp;
+    }
+}
+
 # -- Azex fixed res copied over by Triducal
 proc fill_tri x1, y1, x2, y2, x3, y3 {
     local la = sqrt(($x2 - $x3) * ($x2 - $x3) + ($y2 - $y3) * ($y2 - $y3));
@@ -1107,7 +1153,7 @@ proc STTF_rightAngled_64 x1, y1, x2, y2, x3, y3, tex {
 proc STTF_rightAngled_16 x1, y1, x2, y2, x3, y3, tex {
     local a = ($x3 - $x1) * ($x3 - $x1) + ($y3 - $y1) * ($y3 - $y1);
     local b = ($x1 - $x2) * ($x1 - $x2) + ($y1 - $y2) * ($y1 - $y2);
-    switch_costume "S";
+    switch_costume "size0";
     set_size 1 / 0;
     if a > b {
         goto ($x1 + $x3) / 2 + 24 * ($y3 - $y1), ($y3 + $y1) / 2 - 24 * ($x3 - $x1);
