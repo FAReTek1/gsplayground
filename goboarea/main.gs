@@ -5,6 +5,7 @@
 %include std\\shapefill.gs
 
 costumes "blank.svg", "circle.svg";
+list seps = [];
 
 onflag {
     hide;
@@ -17,7 +18,7 @@ onflag {
     repeat 4 {
         add PE_Pt{x: random(-200, 200), y: random(-150, 150), col: "#FF0000"} to pts;
     }
-
+    
     forever {
         tick;
     }

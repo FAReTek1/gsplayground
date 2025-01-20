@@ -211,7 +211,7 @@ func rstrip(text, chars) {
 
 list split;
 
-# Split $text into a list of strings, separated by $sep. Result is stored in list
+# Split $text into a list of strings, separated by $sep, which is 1 char. Result is stored in list
 # `split`.
 proc split text, sep {
     delete split;
@@ -228,6 +228,74 @@ proc split text, sep {
     }
     add part to split;
 }
+
+# Split $text into a list of strings, seperated by $sep, which is also a string. Not case sensitive. Result is stored in list
+# `split`
+proc split_by_str text, sep {
+    delete split;
+    local i = 1;
+
+    until i > length $text {
+        local part = "";
+        local hit_splitter = false;
+
+        until hit_splitter or i > length $text {
+            hit_splitter = _string_compute_hit(i, $text, $sep);
+
+            local letter = $text[i];
+            if not hit_splitter {
+                part &= letter;
+            }
+
+            i++;
+        }
+
+        i += length $sep - 1;
+        add part to split;
+    }
+}
+
+func _string_compute_hit(i, text, sep) {
+    if $text[$i] == $sep[1] {
+        local future = "";
+        local i = $i;
+        repeat length $sep {
+            future &= $text[i];
+            i++;
+        }
+        return future == $sep;
+
+    } else {
+        return false;
+    }
+}
+
+# Not really sure why this doesn't work
+# %define SPLIT_BY_LIST(text,sep_list)                                        \
+#     delete split;                                                           \
+#     local i = 1;                                                            \
+#     until i > length text {                                                 \
+#         local part = "";                                                    \
+#         local hit_splitter = false;                                         \
+#                                                                             \
+#         until hit_splitter or i > length text {                             \
+#             local k = 1;                                                    \
+#             until hit_splitter or k >= length sep_list {                    \
+#                 local splitter = sep_list[k];                               \
+#                 hit_splitter = _string_compute_hit(i, text, splitter);      \
+#                 k++;                                                        \
+#             }                                                               \ 
+#                                                                             \
+#             local letter = text[i];                                         \
+#             if not hit_splitter {                                           \
+#                 part &= letter;                                             \
+#                 splitter = "";                                              \
+#             }                                                               \
+#             i++;                                                            \
+#         }                                                                   \
+#         i += length splitter - 1;                                           \
+#         add part to split;                                                  \
+#     }                                                                       \
 
 # Return a titlecased version of $text: words start with uppercase characters,
 # all remaining cased characters are lowercase.
