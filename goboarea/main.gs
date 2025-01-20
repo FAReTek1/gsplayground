@@ -31,7 +31,7 @@ proc tick{
         size_hack "Infinity";
 
         set_pen_color "#0000FF";
-        STLF pt2d_by_idx(1), pt2d_by_idx(2), 50, "stlf4", "stlf5";
+        fill_ellipse pos_by_idx(1, 2), Stretch{w: 1, h: mouse_y() / 100}, 30;
         
         size_hack "Infinity";
         pointengine_render;
