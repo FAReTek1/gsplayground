@@ -1,6 +1,7 @@
 %define ASCII_UPPERCASE "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 %define ASCII_LOWERCASE "abcdefghijklmnopqrstuvwxyz"
 %define ASCII_DIGITS "0123456789"
+%define HEX_DIGITS "0123456789ABCDEF"
 
 # Return the characters of $text between $start and $end (inclusive).
 func slice(text, start, end) {
@@ -389,4 +390,23 @@ func zfill(s, zeroes) {
         ret = 0 & ret;
     }
     return ret;
+}
+
+func startswith(text, start) {
+    local i = 1;
+    repeat length $start {
+        if $text[i] != $start[i] {
+            return false;
+        }
+    }
+    return true;
+}
+func startswith_from_idx(text, start, i) {
+    local i = $i;
+    repeat length $start {
+        if $text[i] != $start[i] {
+            return false;
+        }
+    }
+    return true;
 }

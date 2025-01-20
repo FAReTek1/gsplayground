@@ -3,6 +3,7 @@
 %include std\\spritecontrol.gs
 %include std\\color.gs
 %include std\\shapefill.gs
+%include std\\json.gs
 
 costumes "blank.svg", "circle.svg";
 list seps = [];
